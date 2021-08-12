@@ -136,13 +136,13 @@ export default {
     }
   }
 }
-.splitpanes__splitter {
+.panes__splitter {
   position: relative;
 }
-.splitpanes__splitter:hover {
+.panes__splitter:hover {
   background: rgba(0, 0, 0, 0.05);
 }
-.splitpanes__splitter:before {
+.panes__splitter:before {
   content: '';
   position: absolute;
   left: 0;
@@ -152,15 +152,15 @@ export default {
   opacity: 0;
   z-index: 1;
 }
-.splitpanes__splitter:hover:before {
+.panes__splitter:hover:before {
   opacity: 1;
 }
-.splitpanes--vertical > .splitpanes__splitter:before {
+.panes--vertical > .panes__splitter:before {
   left: -2px;
   right: -2px;
   height: 100%;
 }
-.splitpanes--horizontal > .splitpanes__splitter:before {
+.panes--horizontal > .panes__splitter:before {
   top: -2px;
   bottom: -2px;
   width: 100%;

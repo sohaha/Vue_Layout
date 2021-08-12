@@ -50,10 +50,27 @@ export default {
   render(h) {
     const t = this;
     const createItem = name => {
+      let size = null;
+      let minSize = 0;
+      const maxSize = 100;
       const child = [];
       switch (name) {
         case 'bottom':
-          break;
+          size = 10;
+          return h(
+            'item',
+            {
+              class: {
+                [`item__${name}`]: true,
+              },
+              props: {
+                size: size,
+                maxSize: maxSize,
+                minSize: minSize,
+              },
+            },
+            child
+          );
         case 'content':
           child.push(
             h('panes', {}, [
@@ -83,7 +100,6 @@ export default {
               on: {
                 delete(index) {
                   t.remove(name, index);
-                  console.log(index);
                 },
               },
             });
@@ -93,12 +109,20 @@ export default {
           }
         }
       }
+      if (name === 'centre') {
+        minSize = 10;
+      }
 
       return h(
         'item',
         {
           class: {
             [`item__${name}`]: true,
+          },
+          props: {
+            size: size,
+            maxSize: maxSize,
+            minSize: minSize,
           },
         },
         child
@@ -111,7 +135,6 @@ export default {
         ref: 'panes',
         style: {
           height: '600px',
-          // width: '500px',
         },
         props: {
           horizontal: true,
@@ -125,16 +148,16 @@ export default {
 </script>
 
 <style lang="less">
-.splitpanes--horizontal .splitpanes__splitter {
+.panes--horizontal .panes__splitter {
   min-height: 0;
 }
-.splitpanes--vertical .splitpanes__splitter {
+.panes--vertical .panes__splitter {
   min-width: 0;
 }
-.splitpanes__splitter:hover {
+.panes__splitter:hover {
   background: rgba(0, 0, 0, 0.05);
 }
-.splitpanes__splitter:before {
+.panes__splitter:before {
   content: '';
   position: absolute;
   left: 0;
@@ -144,21 +167,21 @@ export default {
   opacity: 0;
   z-index: 1;
 }
-.splitpanes__splitter:hover:before {
+.panes__splitter:hover:before {
   opacity: 1;
 }
-.splitpanes--vertical > .splitpanes__splitter:before {
+.panes--vertical > .panes__splitter:before {
   left: -2px;
   right: -2px;
   height: 100%;
 }
-.splitpanes--horizontal > .splitpanes__splitter:before {
+.panes--horizontal > .panes__splitter:before {
   top: -2px;
   bottom: -2px;
   width: 100%;
 }
 
-.splitpanes__pane {
+.panes__pane {
   overflow: auto;
 }
 .layout {

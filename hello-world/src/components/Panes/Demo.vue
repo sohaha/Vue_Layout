@@ -54,7 +54,6 @@ export default {
     add(key) {
       this.layout[key].push({
         name: 'New ' + Number(new Date()),
-        // name: 'New' + Number(new Date()),
         component: 'demo-input',
         attrs: { val: 'new' },
       });
@@ -64,15 +63,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-// @colorArr: #374151, #6b7280, #9ca3af, #d1d5db, #e5e7eb, #f3f4f6;
-// @len: length(@colorArr);
-// .Loop(@index) when(@index<@len) {
-//   .splitpanes__pane:nth-child(@{index}n) {
-//     background: extract(@colorArr, @index);
-//   }
-//   .Loop(@index+1);
-// }
-
 /deep/ .item__bottom {
   background: rgba(255, 0, 0, 0.116);
 }
@@ -81,12 +71,6 @@ export default {
 }
 /deep/ .item__left {
   background: rgba(144, 136, 224, 0.116);
-  // .splitpanes__pane:nth-child(1n) {
-  //   background: #9ca3af;
-  // }
-  // .splitpanes__pane:nth-child(2n) {
-  //   background: #e5e7eb;
-  // }
 }
 /deep/ .item__centre {
   background: rgba(199, 187, 75, 0.116);
@@ -94,7 +78,4 @@ export default {
 /deep/ .item__right {
   background: rgba(233, 218, 178, 0.116);
 }
-// /deep/ .splitpanes__pane {
-//   border: 1px solid;
-// }
 </style>

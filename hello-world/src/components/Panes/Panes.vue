@@ -61,7 +61,7 @@ export default {
     },
     dblClickSplitter(enable) {
       const splitters = [
-        ...this.container.querySelectorAll('.splitpanes__splitter'),
+        ...this.container.querySelectorAll('.panes__splitter'),
       ];
       splitters.forEach((splitter, i) => {
         splitter.ondblclick = enable
@@ -80,9 +80,6 @@ export default {
     this.resetPaneSizes();
     this.$emit('ready');
     this.ready = true;
-    // this.size = this.container[
-    //   this.horizontal ? 'offsetHeight' : 'offsetWidth'
-    // ];
   },
   methods: {
     update(pane) {
@@ -397,8 +394,8 @@ export default {
     checkSplitpanesNodes() {
       const children = Array.from(this.container.children);
       children.forEach(child => {
-        const isPane = child.classList.contains('splitpanes__pane');
-        const isSplitter = child.classList.contains('splitpanes__splitter');
+        const isPane = child.classList.contains('panes__pane');
+        const isSplitter = child.classList.contains('panes__splitter');
 
         if (!isPane && !isSplitter) {
           child.parentNode.removeChild(child);
@@ -409,7 +406,7 @@ export default {
     addSplitter(paneIndex, nextPaneNode, isVeryFirst = false) {
       const splitterIndex = paneIndex - 1;
       const elm = document.createElement('div');
-      elm.classList.add('splitpanes__splitter');
+      elm.classList.add('panes__splitter');
 
       if (!isVeryFirst) {
         elm.onmousedown = event => this.onMouseDown(event, splitterIndex);
@@ -436,12 +433,11 @@ export default {
     redoSplitters() {
       const children = Array.from(this.container.children);
       children.forEach(el => {
-        if (el.className.includes('splitpanes__splitter'))
-          this.removeSplitter(el);
+        if (el.className.includes('panes__splitter')) this.removeSplitter(el);
       });
       let paneIndex = 0;
       children.forEach(el => {
-        if (el.className.includes('splitpanes__pane')) {
+        if (el.className.includes('panes__pane')) {
           if (!paneIndex && this.firstSplitter)
             this.addSplitter(paneIndex, el, true);
           else if (paneIndex) this.addSplitter(paneIndex, el);
@@ -459,10 +455,10 @@ export default {
       });
     },
     onPaneAdd(pane) {
-      setTimeout(() => {
+      const add = () => {
         let index = -1;
         Array.from(pane.$el.parentNode.children).some(el => {
-          if (el.className.includes('splitpanes__pane')) index++;
+          if (el.className.includes('panes__pane')) index++;
           return el === pane.$el;
         });
         const min = toSize(this, pane.minSize);
@@ -497,7 +493,10 @@ export default {
             });
           });
         }
-      }, 25);
+      };
+      if (this.container && this.container['offsetHeight']) {
+        add();
+      } else setTimeout(add, 22);
     },
     onPaneRemove(pane) {
       const index = this.panes.findIndex(p => p.id === pane._uid);
@@ -663,10 +662,10 @@ export default {
       {
         ref: 'container',
         class: [
-          'splitpanes',
-          `splitpanes--${this.horizontal ? 'horizontal' : 'vertical'}`,
+          'panes',
+          `panes--${this.horizontal ? 'horizontal' : 'vertical'}`,
           {
-            'splitpanes--dragging': this.touch.dragging,
+            'panes--dragging': this.touch.dragging,
           },
         ],
       },
@@ -677,7 +676,7 @@ export default {
 </script>
 
 <style lang="less">
-.splitpanes {
+.panes {
   display: flex;
   width: 100%;
   height: 100%;
@@ -695,13 +694,13 @@ export default {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    .splitpanes--vertical & {
+    .panes--vertical & {
       transition: width 0.2s ease-out;
     }
-    .splitpanes--horizontal & {
+    .panes--horizontal & {
       transition: height 0.2s ease-out;
     }
-    .splitpanes--dragging & {
+    .panes--dragging & {
       transition: none;
     }
   }
@@ -710,11 +709,11 @@ export default {
     position: relative;
     touch-action: none;
   }
-  &--vertical > .splitpanes__splitter {
+  &--vertical > .panes__splitter {
     min-width: 1px;
     cursor: col-resize;
   }
-  &--horizontal > .splitpanes__splitter {
+  &--horizontal > .panes__splitter {
     min-height: 1px;
     cursor: row-resize;
   }

@@ -110,6 +110,7 @@ export default {
 }
 
 .accotdion--title {
+  overflow: hidden;
   transition: all 0.2s;
   background: #d8d4c4;
   font-size: 12px;

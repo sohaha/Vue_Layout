@@ -258,23 +258,23 @@ export default {
     }
   }
 }
-.splitpanes__pane.itme__open ~ .splitpanes__splitter {
+.panes__pane.itme__open ~ .panes__splitter {
   background: brown;
   display: none;
 }
-.splitpanes__splitter {
+.panes__splitter {
   position: relative;
 }
-.splitpanes--horizontal .splitpanes__splitter {
+.panes--horizontal .panes__splitter {
   min-height: 0;
 }
-.splitpanes--vertical .splitpanes__splitter {
+.panes--vertical .panes__splitter {
   min-width: 0;
 }
-.splitpanes__splitter:hover {
+.panes__splitter:hover {
   background: rgba(0, 0, 0, 0.05);
 }
-.splitpanes__splitter:before {
+.panes__splitter:before {
   content: '';
   position: absolute;
   left: 0;
@@ -284,15 +284,15 @@ export default {
   opacity: 0;
   z-index: 1;
 }
-.splitpanes__splitter:hover:before {
+.panes__splitter:hover:before {
   opacity: 1;
 }
-.splitpanes--vertical > .splitpanes__splitter:before {
+.panes--vertical > .panes__splitter:before {
   left: -2px;
   right: -2px;
   height: 100%;
 }
-.splitpanes--horizontal > .splitpanes__splitter:before {
+.panes--horizontal > .panes__splitter:before {
   top: -2px;
   bottom: -2px;
   width: 100%;
