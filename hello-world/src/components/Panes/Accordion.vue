@@ -139,7 +139,10 @@ export default {
     font-size: 2em;
   }
 }
-
+.board,
+.accotdion--board {
+  height: 100%;
+}
 .board {
   background: #fff;
   &.open {

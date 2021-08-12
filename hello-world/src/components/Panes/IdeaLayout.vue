@@ -154,9 +154,11 @@ export default {
 .panes--vertical .panes__splitter {
   min-width: 0;
 }
+
 .panes__splitter:hover {
   background: rgba(0, 0, 0, 0.05);
 }
+
 .panes__splitter:before {
   content: '';
   position: absolute;
@@ -167,9 +169,11 @@ export default {
   opacity: 0;
   z-index: 1;
 }
+
 .panes__splitter:hover:before {
   opacity: 1;
 }
+
 .panes--vertical > .panes__splitter:before {
   left: -2px;
   right: -2px;
@@ -184,6 +188,7 @@ export default {
 .panes__pane {
   overflow: auto;
 }
+
 .layout {
   position: relative;
   box-shadow: 0 0 1px;
