@@ -1,13 +1,8 @@
 <template>
   <div id="app">
-    <pane split="horizontal" height="500px" resizer-width="25px" :nested="true">
-      <item>
-        <pane
-          split="horizontal"
-          height="400px"
-          resizer-width="25px"
-          :nested="true"
-        >
+    <pane height="500px" resizer-width="25px" :nested="true">
+      <item init-height="400px">
+        <pane split="horizontal" height="100%" resizer-width="25px">
           <item>
             Lorem, ipsum dolor sit amet consectetur adipisicing elit.
             Consectetur, excepturi in dolores accusantium praesentium quidem
@@ -15,36 +10,14 @@
             ullam nesciunt tempora architecto laudantium!
           </item>
           <item>
-            <pane height="400px" classes="v-item-custom">
-              <item>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                Consectetur, excepturi in dolores accusantium praesentium quidem
-                laborum neque ut ipsum veritatis ratione rem, esse totam
-                voluptates ullam nesciunt tempora architecto laudantium!
-              </item>
-              <item>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                Consectetur, excepturi in dolores accusantium praesentium quidem
-                laborum neque ut ipsum veritatis ratione rem, esse totam
-                voluptates ullam nesciunt tempora architecto laudantium!
-              </item>
-            </pane>
+            ddd
           </item>
           <item>
-            <pane height="400px" resizer-width="10px" classes="v-item-custom">
-              <item>
-                333
-              </item>
-              <item>
-                <template>
-                  11
-                </template>
-              </item>
-            </pane>
+            333
           </item>
         </pane>
       </item>
-      <item height="100px">100px</item>
+      <item init-height="100px">100px</item>
     </pane>
   </div>
 </template>

@@ -28,7 +28,7 @@ export default {
   components: { IdeaLayout },
   data: () => ({
     layout: {
-      right: [],
+      right: [{ name: '右边', component: 'demo-input' }],
       centre: [{ name: '中间', component: 'demo-input', open: true }],
       left: [
         {

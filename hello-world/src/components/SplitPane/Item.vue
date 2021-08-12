@@ -47,8 +47,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
-* {
-  box-sizing: border-box;
+.innerContent {
+  height: 100%;
 }
 .v-pane {
   position: relative;
