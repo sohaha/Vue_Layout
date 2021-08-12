@@ -1,18 +1,18 @@
 <template>
   <div id="app">
-    <example />
+    <!-- <example /> -->
     <example2 />
   </div>
 </template>
 
 <script>
 import Example2 from './components/Panes/Demo';
-import Example from './components/SplitPane/Example';
+// import Example from './components/SplitPane/Example';
 
 export default {
   name: 'App',
   components: {
-    Example,
+    // Example,
     Example2,
   },
 };

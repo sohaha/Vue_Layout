@@ -69,7 +69,7 @@ export default {
                 minSize: minSize,
               },
             },
-            child
+            ['底部']
           );
         case 'content':
           child.push(

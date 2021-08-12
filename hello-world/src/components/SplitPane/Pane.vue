@@ -44,7 +44,6 @@ export default {
       this.panes = this.root.querySelectorAll(
         '[data-resizable].nested > .v-pane'
       );
-      // Looking for resizers
       this.resizers = this.root.querySelectorAll(
         '[data-resizable].nested > .v-pane > [data-resizer]'
       );
@@ -55,14 +54,12 @@ export default {
       );
     }
 
-    // Calculating initial fracs and pos
     const initFrac = 1 / this.panes.length;
     this.panes.forEach(() => this.fracs.push(initFrac));
 
     this.initPos();
     this.applyFracs();
 
-    // Adding drag logic to resizers
     this.resizers.forEach((resizer, i) => this.addDragLogic(i, resizer));
   },
   methods: {

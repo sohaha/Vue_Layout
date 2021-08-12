@@ -3,7 +3,7 @@
     <pane height="500px" resizer-width="25px" :nested="true">
       <item init-height="400px">
         <pane split="horizontal" height="100%" resizer-width="25px">
-          <item>
+          <item v-if="show">
             Lorem, ipsum dolor sit amet consectetur adipisicing elit.
             Consectetur, excepturi in dolores accusantium praesentium quidem
             laborum neque ut ipsum veritatis ratione rem, esse totam voluptates
@@ -39,6 +39,7 @@ export default {
       default: () => ({}),
     },
   },
+  data: () => ({ show: true }),
   computed: {
     left() {
       return this.layout['left'] || [];
