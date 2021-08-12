@@ -105,10 +105,6 @@ export default {
   user-select: none;
 }
 
-.accotdion--board {
-  padding: 20px 40px;
-}
-
 .accotdion--title {
   overflow: hidden;
   transition: all 0.2s;
@@ -145,6 +141,7 @@ export default {
 }
 
 .board {
+  background: #fff;
   &.open {
     .accotdion--toggle {
       transform: rotate(180deg);
@@ -153,7 +150,6 @@ export default {
   &.detach {
     position: absolute;
     z-index: 1;
-    background: #fff;
     // box-shadow: 1px 1px 3px #878d9a, -1px -1px 3px #878d9a;
     width: 100%;
     height: 100%;
