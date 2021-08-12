@@ -1,16 +1,17 @@
 <template>
   <div id="app">
-    <demo />
+    <example />
   </div>
 </template>
 
 <script>
-import Demo from './components/Panes/Demo';
+import Example from './components/Panes/Demo';
+// import Example from './components/SplitPane/Example';
 
 export default {
   name: 'App',
   components: {
-    Demo,
+    Example,
   },
 };
 </script>

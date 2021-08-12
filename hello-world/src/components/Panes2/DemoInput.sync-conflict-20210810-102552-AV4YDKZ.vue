@@ -1,7 +1,6 @@
 <template>
-  <div class="py-5 bg-gray-50">
-    <div>测试组件</div>
-    <input v-model="data" class="w-2/3 m-auto px-2 border border-red-300" >
+  <div class="w-2/3 m-auto">
+    <input v-model="data" class="w-full px-2 border border-red-300" >
   </div>
 </template>
 
@@ -17,6 +16,9 @@ export default {
   data() {
     return { data: this.val };
   },
+    watch:{data(v){
+
+    }},
   methods: {},
 };
 </script>

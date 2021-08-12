@@ -1,6 +1,4 @@
 <script>
-import { toSize } from './utils';
-
 export default {
   name: 'Panes',
   provide() {
@@ -32,7 +30,6 @@ export default {
       splitter: null,
       timeoutId: null,
     },
-    size: 0,
   }),
   computed: {
     panesCount() {
@@ -80,28 +77,16 @@ export default {
     this.resetPaneSizes();
     this.$emit('ready');
     this.ready = true;
-    // this.size = this.container[
-    //   this.horizontal ? 'offsetHeight' : 'offsetWidth'
-    // ];
   },
   methods: {
-    update(pane) {
-      if (!pane) return;
-      const size = this.indexedPanes[pane.id].size;
-
-      pane.update({
-        [this.horizontal ? 'height' : 'width']: size === null ? '' : `${size}%`,
-      });
-
-      if (size === null) {
-        setTimeout(() => {
-          this.indexedPanes[pane.id].size = pane.getSize();
-        });
-      }
-    },
     updatePaneComponents() {
       this.panes.forEach(pane => {
-        this.update(pane);
+        pane.update &&
+          pane.update({
+            [this.horizontal ? 'height' : 'width']: `${
+              this.indexedPanes[pane.id].size
+            }%`,
+          });
       });
     },
     bindEvents() {
@@ -237,7 +222,6 @@ export default {
       let panesToResize = [splitterIndex, splitterIndex + 1];
       let paneBefore = this.panes[panesToResize[0]] || null;
       let paneAfter = this.panes[panesToResize[1]] || null;
-
       const paneBeforeMaxReached =
         paneBefore.max < 100 &&
         dragPercentage >= paneBefore.max + sums.prevPanesSize;
@@ -245,7 +229,6 @@ export default {
         paneAfter.max < 100 &&
         dragPercentage <=
           100 - (paneAfter.max + this.sumNextPanesSize(splitterIndex + 1));
-
       if (paneBeforeMaxReached || paneAfterMaxReached) {
         if (paneBeforeMaxReached) {
           paneBefore.size = paneBefore.max;
@@ -449,8 +432,8 @@ export default {
         }
       });
     },
-    getCurrentSize() {
-      return this;
+    getCurrentSize(target) {
+      return target.$el.offsetHeight;
     },
     requestUpdate({ target, ...args }) {
       const pane = this.indexedPanes[target._uid];
@@ -459,47 +442,45 @@ export default {
       });
     },
     onPaneAdd(pane) {
-      setTimeout(() => {
-        let index = -1;
-        Array.from(pane.$el.parentNode.children).some(el => {
-          if (el.className.includes('splitpanes__pane')) index++;
-          return el === pane.$el;
-        });
-        const min = toSize(this, pane.minSize);
-        const max = toSize(this, pane.maxSize);
-        const size = toSize(this, pane.size);
-        this.panes.splice(index, 0, {
-          id: pane._uid,
-          index,
-          min: isNaN(min) ? 0 : min,
-          max: isNaN(max) ? 100 : max,
-          size: size || min,
-          givenSize: size,
-          update: pane.update,
-          getSize: pane.getSize,
-        });
+      let index = -1;
+      Array.from(pane.$el.parentNode.children).some(el => {
+        if (el.className.includes('splitpanes__pane')) index++;
+        return el === pane.$el;
+      });
 
-        this.panes.forEach((p, i) => {
-          p.index = i;
-        });
+      const min = parseFloat(pane.minSize);
+      const max = parseFloat(pane.maxSize);
+      this.panes.splice(index, 0, {
+        id: pane._uid,
+        index,
+        min: isNaN(min) ? 0 : min,
+        max: isNaN(max) ? 100 : max,
+        size: pane.size === null ? null : parseFloat(pane.size),
+        givenSize: pane.size,
+        update: pane.update,
+      });
 
-        if (this.ready) {
-          this.$nextTick(() => {
-            this.redoSplitters();
-            this.resetPaneSizes({ addedPane: this.panes[index] });
-            this.$emit('pane-add', {
-              index,
-              panes: this.panes.map(pane => ({
-                min: pane.min,
-                max: pane.max,
-                size: pane.size,
-              })),
-            });
+      this.panes.forEach((p, i) => {
+        p.index = i;
+      });
+
+      if (this.ready) {
+        this.$nextTick(() => {
+          this.redoSplitters();
+          this.resetPaneSizes({ addedPane: this.panes[index] });
+          this.$emit('pane-add', {
+            index,
+            panes: this.panes.map(pane => ({
+              min: pane.min,
+              max: pane.max,
+              size: pane.size,
+            })),
           });
-        }
-      }, 25);
+        });
+      }
     },
     onPaneRemove(pane) {
+      console.log('onPaneRemove', pane);
       const index = this.panes.findIndex(p => p.id === pane._uid);
       const removed = this.panes.splice(index, 1)[0];
       this.panes.forEach((p, i) => {
@@ -652,8 +633,11 @@ export default {
           leftToAllocate -= allocated;
           pane.size = newPaneSize;
         }
-
-        this.update(pane);
+        pane.update({
+          [this.horizontal ? 'height' : 'width']: `${
+            this.indexedPanes[pane.id].size
+          }%`,
+        });
       });
     },
   },
@@ -695,6 +679,7 @@ export default {
     width: 100%;
     height: 100%;
     overflow: hidden;
+
     .splitpanes--vertical & {
       transition: width 0.2s ease-out;
     }
@@ -707,7 +692,6 @@ export default {
   }
 
   &__splitter {
-    position: relative;
     touch-action: none;
   }
   &--vertical > .splitpanes__splitter {
@@ -715,8 +699,76 @@ export default {
     cursor: col-resize;
   }
   &--horizontal > .splitpanes__splitter {
-    min-height: 1px;
+    min-height: 2px;
     cursor: row-resize;
+  }
+}
+.splitpanes.default-theme {
+  .splitpanes__pane {
+    background-color: #f2f2f2;
+  }
+  .splitpanes__splitter {
+    background-color: #fff;
+    box-sizing: border-box;
+    position: relative;
+    flex-shrink: 0;
+    &:before,
+    &:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      background-color: rgba(0, 0, 0, 0.15);
+      transition: background-color 0.3s;
+    }
+    &:hover:before,
+    &:hover:after {
+      background-color: rgba(0, 0, 0, 0.25);
+    }
+    &:first-child {
+      cursor: auto;
+    }
+  }
+}
+.default-theme {
+  &.splitpanes .splitpanes .splitpanes__splitter {
+    z-index: 1;
+  }
+  &.splitpanes--vertical > .splitpanes__splitter,
+  .splitpanes--vertical > .splitpanes__splitter {
+    width: 7px;
+    border-left: 1px solid #eee;
+    margin-left: -1px;
+    &:before,
+    &:after {
+      transform: translateY(-50%);
+      width: 1px;
+      height: 30px;
+    }
+    &:before {
+      margin-left: -2px;
+    }
+    &:after {
+      margin-left: 1px;
+    }
+  }
+  &.splitpanes--horizontal > .splitpanes__splitter,
+  .splitpanes--horizontal > .splitpanes__splitter {
+    height: 7px;
+    border-top: 1px solid #eee;
+    margin-top: -1px;
+    &:before,
+    &:after {
+      transform: translateX(-50%);
+      width: 30px;
+      height: 1px;
+    }
+    &:before {
+      margin-top: -2px;
+    }
+    &:after {
+      margin-top: 1px;
+    }
   }
 }
 </style>

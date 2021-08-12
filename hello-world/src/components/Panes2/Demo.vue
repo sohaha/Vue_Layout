@@ -17,33 +17,28 @@
 
 <script>
 import IdeaLayout from './IdeaLayout';
-import { install } from './index';
-
-import DemoInput from './DemoInput';
-
-install(DemoInput);
-
 export default {
   name: 'Demo',
   components: { IdeaLayout },
   data: () => ({
     layout: {
       right: [],
-      centre: [{ name: '中间', component: 'demo-input', open: true }],
+      centre: [{ name: '中间', component: 'demo-input' }],
       left: [
         {
           name: '左边 0',
+          key: 'key0',
           component: 'demo-input',
-          props: { val: '0' },
+          attr: { props: { val: '0' } },
         },
         {
           name: '左边 1',
+          key: 'key1',
           component: 'demo-input',
-          open: true,
-          props: { val: '1' },
+          attr: { props: { val: '1' } },
         },
-        { name: '左边 2', component: 'demo-input' },
-        { name: '左边 3', component: 'demo-input' },
+        { name: '左边 2', key: 'key2', component: 'demo-input' },
+        { name: '左边 3', key: 'key3', component: 'demo-input' },
       ],
     },
   }),

@@ -1,67 +1,14 @@
-<template>
-  <panes ref="panes" horizontal style="height: 500px">
-    <item>
-      <panes>
-        <item
-          v-if="state.left"
-          :size="left.length === 0 ? 0 : 20"
-          min-size="10"
-          class="bg-gray-30"
-        >
-          <panes horizontal>
-            <item
-              v-for="(v, k) in left"
-              :key="k"
-              mxin-size="10px"
-              :class="['bg-blue-' + k + '00', 'border']"
-            >
-              <div class="item-title">
-                {{ v.name }}
-                <span class="itme__delete" @click="remove('left', k)">X</span>
-              </div>
-              <component v-bind="v.attrs" :is="v.component" />
-              <button class="text-sm px-2">
-                删除
-              </button>
-            </item>
-          </panes>
-        </item>
-        <item class="bg-green-100" rtl>
-          中间
-        </item>
-        <item v-if="state.right" :size="right.length === 0 ? 0 : 20">
-          <panes horizontal>
-            <item
-              v-for="(v, k) in right"
-              :key="k"
-              mxin-size="10px"
-              :class="['bg-gray-' + k + '00', 'border']"
-            >
-              <div class="item-title">
-                {{ v.name }}
-                <span class="itme__delete" @click="remove('right', k)">X</span>
-              </div>
-              <component v-bind="v.attrs" :is="v.component" />
-            </item>
-          </panes>
-        </item>
-      </panes>
-    </item>
-    <item :size="state.bottom" class="bg-red-100">
-      <div>底部</div>
-      <demo-input
-    /></item>
-  </panes>
-</template>
-
 <script>
 import Item from './Item';
 import Panes from './Panes';
+// import Vue from 'vue';
 import DemoInput from './DemoInput';
-
+import Accordion from './Accordion';
+// import { toSize } from './utils';
+// Vue.Use(DemoInput);
 export default {
   name: 'IdeaLayout',
-  components: { Panes, Item, DemoInput },
+  components: { Panes, Item, DemoInput, Accordion },
   props: {
     layout: {
       type: Object,
@@ -81,51 +28,108 @@ export default {
       return this.layout['left'] || [];
     },
     right() {
-      return this.layout['right'] || [];
+      const r = this.layout['right'] || [];
+      if (r.length === 0 && this.$refs.right) {
+        console.log('删除', this.$refs.right);
+        // this.$refs.right && this.$refs.right.onPaneRemove(this.$refs.right);
+      }
+      return r;
     },
   },
+  watch: {},
   methods: {
-    remove(key, index) {
+    remove(name, index) {
       const layout = this.layout;
-      layout[key].splice(index, 1);
+      layout[name].splice(index, 1);
       this.updateLayout(layout);
     },
     updateLayout(layout) {
-      console.log(layout);
       this.$emit('update:layout', layout);
     },
-    add(key) {},
-    toggle(key) {
-      if (typeof this.state[key] !== 'number') {
-        return;
+  },
+  render(h) {
+    const t = this;
+    const createItem = name => {
+      const child = [];
+      switch (name) {
+        case 'bottom':
+          break;
+        case 'content':
+          child.push(
+            h('panes', {}, [
+              createItem('left'),
+              createItem('centre'),
+              createItem('right'),
+            ])
+          );
+          break;
+        default: {
+          const layout = this.layout[name] || [];
+          if (layout && layout.length > 0) {
+            for (const index in layout) {
+              if (Object.hasOwnProperty.call(layout, index)) {
+                const v = this.layout[name][index];
+                if (!layout._key) {
+                  const key = layout.key || v.name || Number(new Date());
+                  this.layout[name][index]._key = `${v.component}|${key}`;
+                }
+              }
+            }
+
+            const accordion = h('accordion', {
+              props: {
+                items: this.layout[name],
+              },
+              on: {
+                delete(index) {
+                  t.remove(name, index);
+                  console.log(index);
+                },
+              },
+            });
+            child.push(accordion);
+          } else {
+            return '';
+          }
+        }
       }
-      if (this.history[key]) {
-        this.state[key] = this.history[key];
-        this.history[key] = 0;
-        return;
-      }
-      this.history[key] = this.state[key];
-      this.state[key] = 0;
-      console.log(this.$refs.panes);
-      this.$refs.panes.updatePaneComponents();
-    },
+
+      return h(
+        'item',
+        {
+          class: {
+            [`item__${name}`]: true,
+          },
+        },
+        child
+      );
+    };
+    const layout = h(
+      'panes',
+      {
+        class: 'layout',
+        ref: 'panes',
+        style: {
+          height: '600px',
+          // width: '500px',
+        },
+        props: {
+          horizontal: true,
+        },
+      },
+      [createItem('content'), createItem('bottom')]
+    );
+    return layout;
   },
 };
 </script>
 
 <style lang="less">
-.item-title {
-  .itme__delete {
-    display: none;
-  }
-  &:hover {
-    .itme__delete {
-      display: inline-block;
-    }
-  }
+.splitpanes--horizontal .splitpanes__splitter {
+  min-height: 0;
 }
-.splitpanes__splitter {
-  position: relative;
+.splitpanes--vertical .splitpanes__splitter {
+  min-width: 0;
 }
 .splitpanes__splitter:hover {
   background: rgba(0, 0, 0, 0.05);
@@ -152,5 +156,37 @@ export default {
   top: -2px;
   bottom: -2px;
   width: 100%;
+}
+
+.splitpanes__pane {
+  overflow: auto;
+}
+.layout {
+  position: relative;
+  box-shadow: 0 0 1px;
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: #fafafa;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #999999;
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: #cccccc;
+  }
 }
 </style>
