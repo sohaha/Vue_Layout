@@ -22,28 +22,52 @@ export default {
     this.$nextTick(() => {});
   },
   methods: {
-    bind(el) {
-      console.log(el);
-      const interactObj = interact(el);
-      // // interactObj.styleCursor(false);
-      interactObj.resizable({
-        edges: { top: true, left: true, bottom: true, right: true },
-        modifiers: [
-          interact.modifiers.aspectRatio({
-            ratio: 'preserve',
-          }),
-        ],
-        listeners: {
-          move: function(event) {
-            const { x, y } = event.target.dataset;
-            console.log(x, y);
+    bindBoard(index, e) {
+      const name = 'board_' + index;
+      setTimeout(() => {
+        const el = this.$refs[name];
+        console.log(name, el, e);
+        const interactObj = interact(el);
+        interactObj.draggable({
+          listeners: {
+            move(event) {
+              console.log(event.pageX, event.pageY);
+            },
           },
-        },
-      });
-      window['a'] = interactObj;
-      interactObj.on('resizestart resizemove resizeend', event => {
-        console.log(event);
-      });
+        });
+        console.log(interactObj);
+      }, 1000);
+      return;
+      // console.log(el);
+      // console.log(el.elm);
+      // const interactObj = interact(el);
+      // // // interactObj.styleCursor(false);
+      // interactObj.resizable({
+      //   edges: { top: true, left: true, bottom: true, right: true },
+      //   modifiers: [
+      //     interact.modifiers.aspectRatio({
+      //       ratio: 'preserve',
+      //     }),
+      //   ],
+      //   listeners: {
+      //     move: function(event) {
+      //       const { x, y } = event.target.dataset;
+      //       console.log(x, y);
+      //     },
+      //   },
+      // });
+      // window['a'] = interactObj;
+      // interactObj.draggable({
+      //   listeners: {
+      //     move(event) {
+      //       console.log(event.pageX, event.pageY);
+      //     },
+      //   },
+      // });
+
+      // interactObj.on('resizestart resizemove resizeend', event => {
+      //   console.log(event);
+      // });
     },
     boardClass(num) {
       return {
@@ -133,8 +157,10 @@ export default {
           {
             class: 'accotdion--board',
             style: {
-              display: item.open ? '' : 'none',
+              // display: item.open ? '' : 'none',
+              height: item.open ? 'calc(100% - 22px)' : '0',
             },
+            ref: 'board_' + index,
           },
           [
             h(item.component, {
@@ -144,7 +170,7 @@ export default {
           ]
         );
         children.push(el);
-        this.bind(el);
+        this.bindBoard(index, el);
         items.push(
           h(
             'div',
@@ -221,6 +247,8 @@ export default {
 }
 
 .accotdion--board {
+  overflow: hidden;
+  transition: height 0.5s;
   height: calc(100% - 22px);
 }
 .board {
