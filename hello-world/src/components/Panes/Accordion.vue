@@ -1,5 +1,5 @@
 <template>
-  <div class="accotdion">
+  <div ref="accotdion" class="accotdion">
     <div
       v-for="(item, index) in items"
       :key="item._key || index"
@@ -64,7 +64,12 @@
 
 <script>
 import Vue from 'vue';
-
+import '@interactjs/auto-start';
+import '@interactjs/actions/drag';
+import '@interactjs/actions/resize';
+import '@interactjs/modifiers';
+import '@interactjs/dev-tools';
+import interact from '@interactjs/interact';
 export default {
   name: 'Accordion',
   props: {
@@ -74,6 +79,11 @@ export default {
         return [];
       },
     },
+  },
+  mounted() {
+    const interactObj = interact(this.$refs.accotdion);
+    interactObj.styleCursor(false);
+    window['a'] = interactObj;
   },
   methods: {
     boardClass(num) {
@@ -109,6 +119,7 @@ export default {
   margin: 0 auto;
   user-select: none;
   overflow: auto;
+  touch-action: none;
 }
 
 .accotdion--title {
