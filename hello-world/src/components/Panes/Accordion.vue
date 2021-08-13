@@ -22,7 +22,7 @@
         </span>
         <div>{{ item.name }}</div>
 
-        <span class="accotdion--delete" @click.stop="del(index)">
+        <span class="accotdion--delete" @click.stop="remove(index)">
           <svg
             viewBox="0 0 1024 1024"
             xmlns="http://www.w3.org/2000/svg"
@@ -86,8 +86,8 @@ export default {
         Vue.set(this.items[num], 'open', true);
       }
     },
-    del(num) {
-      this.$emit('delete', num);
+    remove(num) {
+      this.$emit('remove', num);
     },
     toggle(num) {
       if (this.items[num].detach) return;
@@ -101,8 +101,10 @@ export default {
 @text-color: rgb(107, 114, 128);
 .accotdion {
   width: 100%;
+  height: 100%;
   margin: 0 auto;
   user-select: none;
+  overflow: auto;
 }
 
 .accotdion--title {
@@ -120,6 +122,9 @@ export default {
     flex: 1;
     text-align: left;
     padding: 0 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   svg {
@@ -139,7 +144,7 @@ export default {
     font-size: 2em;
   }
 }
-.board,
+
 .accotdion--board {
   height: 100%;
 }

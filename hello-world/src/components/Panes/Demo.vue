@@ -9,8 +9,13 @@
         <!-- <span @click="toggle('bottom')">切换底部</span> |
         <span @click="toggle('left')">切换左边</span> |
         <span @click="toggle('right')">切换右边</span> | -->
+        <div class="select-none py-5 text-sm">
+          <span @click="toggle('left')">左边切换</span> |
+          <span @click="toggle('centre')">中间切换</span> |
+          <span @click="toggle('right')">右边切换</span> |
+        </div>
+        <idea-layout ref="layout" :layout.sync="layout" />
       </div>
-      <idea-layout ref="layout" :layout.sync="layout" />
     </div>
   </div>
 </template>
@@ -28,29 +33,46 @@ export default {
   components: { IdeaLayout },
   data: () => ({
     layout: {
-      right: [{ name: '右边', component: 'demo-input' }],
-      centre: [{ name: '中间', component: 'demo-input', open: true }],
-      left: [
-        {
-          name: '左边 0',
-          component: 'demo-input',
-          props: { val: '0' },
-        },
-        {
-          name: '左边 1',
-          component: 'demo-input',
-          open: true,
-          props: { val: '1' },
-        },
-        { name: '左边 2', component: 'demo-input' },
-        { name: '左边 3', component: 'demo-input' },
-      ],
+      right: {
+        size: 15,
+        minSize: 10,
+        maxSize: 40,
+        items: [{ name: '右边', component: 'demo-input' }],
+      },
+      centre: {
+        size: 50,
+        minSize: 30,
+        items: [{ name: '中间', component: 'demo-input', open: true }],
+      },
+      left: {
+        maxSize: 60,
+        items: [
+          {
+            name: '左边 0',
+            component: 'demo-input',
+            props: { val: '0' },
+          },
+          {
+            name: '左边 1',
+            component: 'demo-input',
+            open: true,
+            props: { val: '1' },
+          },
+          { name: '左边 2', component: 'demo-input' },
+          { name: '左边 3', component: 'demo-input' },
+        ],
+      },
     },
   }),
+  mounted() {
+    console.log(this.$refs.layout.$el.clientHeight);
+    console.log(this.$refs.layout.$el.clientWidth);
+  },
   methods: {
     toggle(key) {
       this.$refs.layout.toggle(key);
     },
+    set(key) {},
     add(key) {
       this.layout[key].push({
         name: 'New ' + Number(new Date()),

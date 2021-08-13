@@ -4,6 +4,7 @@ import Panes from './Panes';
 // import Vue from 'vue';
 import DemoInput from './DemoInput';
 import Accordion from './Accordion';
+import Vue from 'vue';
 // import { toSize } from './utils';
 // Vue.Use(DemoInput);
 export default {
@@ -11,6 +12,10 @@ export default {
   components: { Panes, Item, DemoInput, Accordion },
   props: {
     layout: {
+      type: Object,
+      default: () => ({}),
+    },
+    layoutSize: {
       type: Object,
       default: () => ({}),
     },
@@ -29,15 +34,14 @@ export default {
     },
     right() {
       const r = this.layout['right'] || [];
-      if (r.length === 0 && this.$refs.right) {
-        console.log('删除', this.$refs.right);
-        // this.$refs.right && this.$refs.right.onPaneRemove(this.$refs.right);
-      }
       return r;
     },
   },
   watch: {},
   methods: {
+    toggle(name) {
+      this.state[name] = !this.state[name];
+    },
     remove(name, index) {
       const layout = this.layout;
       layout[name].splice(index, 1);
@@ -46,13 +50,25 @@ export default {
     updateLayout(layout) {
       this.$emit('update:layout', layout);
     },
+    getLayout(name) {
+      const layout = this.layout[name];
+      if (!layout) return {};
+      return layout;
+    },
   },
   render(h) {
     const t = this;
     const createItem = name => {
-      let size = null;
-      let minSize = 0;
-      const maxSize = 100;
+      const layout = this.getLayout(name);
+      const items = layout['items'];
+      let state = this.state[name];
+      if (state === undefined) {
+        state = true;
+        Vue.set(this.state, name, state);
+      }
+      let size = layout.size;
+      const minSize = layout.minSize || 0;
+      const maxSize = layout.maxSize || 100;
       const child = [];
       switch (name) {
         case 'bottom':
@@ -73,32 +89,35 @@ export default {
           );
         case 'content':
           child.push(
-            h('panes', {}, [
-              createItem('left'),
-              createItem('centre'),
-              createItem('right'),
-            ])
+            h(
+              'panes',
+              {
+                props: {},
+              },
+              [createItem('left'), createItem('centre'), createItem('right')]
+            )
           );
           break;
         default: {
-          const layout = this.layout[name] || [];
-          if (layout && layout.length > 0) {
-            for (const index in layout) {
+          if (items && items.length > 0) {
+            for (const index in items) {
               if (Object.hasOwnProperty.call(layout, index)) {
-                const v = this.layout[name][index];
+                const v = items[index];
                 if (!layout._key) {
-                  const key = layout.key || v.name || Number(new Date());
-                  this.layout[name][index]._key = `${v.component}|${key}`;
+                  const key = v.key || v.name || Number(new Date());
+                  this.layout[name]['items'][
+                    index
+                  ]._key = `${v.component}|${key}`;
                 }
               }
             }
 
             const accordion = h('accordion', {
               props: {
-                items: this.layout[name],
+                items,
               },
               on: {
-                delete(index) {
+                remove(index) {
                   t.remove(name, index);
                 },
               },
@@ -109,24 +128,23 @@ export default {
           }
         }
       }
-      if (name === 'centre') {
-        minSize = 10;
-      }
 
-      return h(
-        'item',
-        {
-          class: {
-            [`item__${name}`]: true,
-          },
-          props: {
-            size: size,
-            maxSize: maxSize,
-            minSize: minSize,
-          },
-        },
-        child
-      );
+      return state
+        ? h(
+            'item',
+            {
+              class: {
+                [`item__${name}`]: true,
+              },
+              props: {
+                size: size,
+                maxSize: maxSize,
+                minSize: minSize,
+              },
+            },
+            child
+          )
+        : '';
     };
     const layout = h(
       'panes',
@@ -185,9 +203,9 @@ export default {
   width: 100%;
 }
 
-.panes__pane {
-  overflow: auto;
-}
+// .panes__pane {
+//   overflow: auto;
+// }
 
 .layout {
   position: relative;
