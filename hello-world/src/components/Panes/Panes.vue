@@ -7,7 +7,7 @@ export default {
     return {
       requestUpdate: this.requestUpdate,
       addPane: this.addPane,
-      onPaneRemove: this.onPaneRemove,
+      removePane: this.removePane,
       onPaneClick: this.onPaneClick,
     };
   },
@@ -155,7 +155,7 @@ export default {
         this.$emit('splitter-click', this.panes[splitterIndex]);
     },
     onPaneClick(event, paneId) {
-      this.$emit('pane-click', this.indexedPanes[paneId]);
+      this.$emit('click', this.indexedPanes[paneId]);
     },
     getCurrentMouseDrag(event) {
       const rect = this.container.getBoundingClientRect();
@@ -417,14 +417,14 @@ export default {
         this.$nextTick(() => {
           this.redoSplitters();
           this.resetPaneSizes({ addedPane: this.panes[index] });
-          this.$emit('pane-add', {
+          this.$emit('add', {
             index,
             panes: this.panes,
           });
         });
       }
     },
-    onPaneRemove(pane) {
+    removePane(pane) {
       const index = this.panes.findIndex(p => p.id === pane._uid);
       const removed = this.panes.splice(index, 1)[0];
       this.panes.forEach((p, i) => {
@@ -434,7 +434,7 @@ export default {
       this.$nextTick(() => {
         this.redoSplitters();
         this.resetPaneSizes({ removedPane: { ...removed, index } });
-        this.$emit('pane-remove', {
+        this.$emit('remove', {
           removed,
           panes: this.panes,
         });

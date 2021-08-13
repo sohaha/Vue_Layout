@@ -9,7 +9,7 @@ import { toSize } from './utils';
 
 export default {
   name: 'Item',
-  inject: ['requestUpdate', 'addPane', 'onPaneRemove', 'onPaneClick'],
+  inject: ['requestUpdate', 'addPane', 'removePane', 'onPaneClick'],
   props: {
     size: { type: [Number, String], default: null },
     minSize: { type: [Number, String], default: 0 },
@@ -32,7 +32,7 @@ export default {
     this.addPane(this);
   },
   beforeDestroy() {
-    this.onPaneRemove(this);
+    this.removePane(this);
   },
   methods: {
     getSize() {

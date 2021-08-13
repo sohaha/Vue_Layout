@@ -52,7 +52,11 @@
         </span>
       </div>
       <div v-show="item.open" class="accotdion--board">
-        <component :is="item.component" />
+        <component
+          v-bind="item.props"
+          :is="item.component"
+          v-on="item.listeners"
+        />
       </div>
     </div>
   </div>
@@ -146,7 +150,7 @@ export default {
 }
 
 .accotdion--board {
-  height: 100%;
+  height: calc(100% - 22px);
 }
 .board {
   background: #fff;

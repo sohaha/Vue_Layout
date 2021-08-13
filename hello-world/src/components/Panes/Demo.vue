@@ -7,10 +7,6 @@
         <span @click="add('centre')">中间插入</span> |
         <span @click="add('right')">右边插入</span>
         <div class="select-none py-5 text-sm">
-          <span @click="add('left', 1)">左边第二个位置插入</span> |
-          <span @click="add('left', 3)">中间第四个位置插入</span>
-        </div>
-        <div class="select-none py-5 text-sm">
           <span @click="toggle('left')">左边切换</span> |
           <span @click="toggle('centre')">中间切换</span> |
           <span @click="toggle('right')">右边切换</span> |
@@ -26,14 +22,24 @@ import IdeaLayout from './IdeaLayout';
 import { install } from './index';
 
 import DemoInput from './DemoInput';
+import Full from './Example/Full';
+import Add from './Example/Add';
 
 install(DemoInput);
+install(Full);
+install(Add);
 
 export default {
   name: 'Demo',
   components: { IdeaLayout },
-  data: () => ({
-    layout: {
+  data() {
+    return {
+      layout: {},
+    };
+  },
+  mounted() {
+    const t = this;
+    const layout = {
       right: {
         size: 15,
         minSize: 10,
@@ -43,7 +49,24 @@ export default {
       centre: {
         size: 50,
         minSize: 30,
-        items: [{ name: '中间', component: 'demo-input', open: true }],
+        items: [
+          {
+            name: '中间',
+            component: 'full',
+            open: true,
+            props: { el: this.$refs.layout },
+          },
+          {
+            name: '动态插入折叠',
+            component: 'add',
+            open: true,
+            listeners: {
+              tap({ name, index }) {
+                t.add(name, index);
+              },
+            },
+          },
+        ],
       },
       left: {
         maxSize: 60,
@@ -63,11 +86,8 @@ export default {
           { name: '左边 3', component: 'demo-input' },
         ],
       },
-    },
-  }),
-  mounted() {
-    console.log(this.$refs.layout.$el.clientHeight);
-    console.log(this.$refs.layout.$el.clientWidth);
+    };
+    this.layout = layout;
   },
   methods: {
     toggle(key) {
@@ -79,7 +99,7 @@ export default {
         component: 'demo-input',
         open: true,
       };
-      if (index) {
+      if (index !== undefined) {
         this.layout[key]['items'].splice(index, 0, item);
       } else {
         this.layout[key]['items'].push(item);
