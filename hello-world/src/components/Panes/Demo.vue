@@ -44,14 +44,14 @@ export default {
         size: 15,
         minSize: 10,
         maxSize: 40,
-        items: [{ name: '右边', component: 'demo-input' }],
+        items: [{ name: '右边-', component: 'demo-input' }],
       },
       centre: {
         size: 50,
         minSize: 30,
         items: [
           {
-            name: '中 间',
+            name: '-中 间-',
             component: 'full',
             open: true,
             props: { el: this.$refs.layout },
