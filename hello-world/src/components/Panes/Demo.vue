@@ -98,6 +98,7 @@ export default {
         name: 'New ' + Number(new Date()),
         component: 'demo-input',
         open: true,
+        props: { val: '新建' + Number(new Date()) },
       };
       if (index !== undefined) {
         this.layout[key]['items'].splice(index, 0, item);
