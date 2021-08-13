@@ -74,7 +74,7 @@ export default {
     },
     set(key) {},
     add(key) {
-      this.layout[key].push({
+      this.layout[key]['items'].push({
         name: 'New ' + Number(new Date()),
         component: 'demo-input',
         attrs: { val: 'new' },
