@@ -60,7 +60,7 @@ export default {
             name: '动态插入折叠',
             component: 'add',
             open: true,
-            listeners: {
+            on: {
               tap({ name, index }) {
                 t.add(name, index);
               },

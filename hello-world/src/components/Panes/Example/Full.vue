@@ -1,6 +1,6 @@
 <template>
-  <div class="p-5 cursor-pointer" @click="tap">
-    {{ text }}
+  <div class="p-5">
+    <div class=" cursor-pointer" @click="tap">{{ text }}</div>
   </div>
 </template>
 
