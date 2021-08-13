@@ -9,7 +9,7 @@ import { toSize } from './utils';
 
 export default {
   name: 'Item',
-  inject: ['requestUpdate', 'onPaneAdd', 'onPaneRemove', 'onPaneClick'],
+  inject: ['requestUpdate', 'addPane', 'onPaneRemove', 'onPaneClick'],
   props: {
     size: { type: [Number, String], default: null },
     minSize: { type: [Number, String], default: 0 },
@@ -25,23 +25,11 @@ export default {
   },
   watch: {
     sizeNumber(size) {
-      console.log('size', size);
       this.requestUpdate({ target: this, size });
     },
-    //   minSizeNumber(min) {
-    //     this.requestUpdate({ target: this, min });
-    //   },
-    //   maxSizeNumber(max) {
-    //     this.requestUpdate({ target: this, max });
-    //   },
   },
   mounted() {
-    // console.log(this.$parent.$el);
-    // this.$nextTick(() => {
-    //   const size = toSize(this.$parent, this.minSize);
-    //   if (size > 0) console.error(size, this.$parent, this.$parent.size);
-    // });
-    this.onPaneAdd(this);
+    this.addPane(this);
   },
   beforeDestroy() {
     this.onPaneRemove(this);

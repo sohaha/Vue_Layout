@@ -2,7 +2,7 @@
   <div class="accotdion">
     <div
       v-for="(item, index) in items"
-      :key="item._key"
+      :key="item._key || index"
       :class="boardClass(index)"
       :draggable="item.detach"
     >

@@ -6,9 +6,10 @@
         <span @click="add('left')">左边插入</span> |
         <span @click="add('centre')">中间插入</span> |
         <span @click="add('right')">右边插入</span>
-        <!-- <span @click="toggle('bottom')">切换底部</span> |
-        <span @click="toggle('left')">切换左边</span> |
-        <span @click="toggle('right')">切换右边</span> | -->
+        <div class="select-none py-5 text-sm">
+          <span @click="add('left', 1)">左边第二个位置插入</span> |
+          <span @click="add('left', 3)">中间第四个位置插入</span>
+        </div>
         <div class="select-none py-5 text-sm">
           <span @click="toggle('left')">左边切换</span> |
           <span @click="toggle('centre')">中间切换</span> |
@@ -72,13 +73,17 @@ export default {
     toggle(key) {
       this.$refs.layout.toggle(key);
     },
-    set(key) {},
-    add(key) {
-      this.layout[key]['items'].push({
+    add(key, index) {
+      const item = {
         name: 'New ' + Number(new Date()),
         component: 'demo-input',
-        attrs: { val: 'new' },
-      });
+        open: true,
+      };
+      if (index) {
+        this.layout[key]['items'].splice(index, 0, item);
+      } else {
+        this.layout[key]['items'].push(item);
+      }
     },
   },
 };

@@ -6,7 +6,7 @@ export default {
   provide() {
     return {
       requestUpdate: this.requestUpdate,
-      onPaneAdd: this.onPaneAdd,
+      addPane: this.addPane,
       onPaneRemove: this.onPaneRemove,
       onPaneClick: this.onPaneClick,
     };
@@ -392,7 +392,7 @@ export default {
         pane[key] = value;
       });
     },
-    onPaneAdd(pane) {
+    addPane(pane) {
       let index = -1;
       Array.from(pane.$el.parentNode.children).some(el => {
         if (el.className.includes('panes__pane')) index++;

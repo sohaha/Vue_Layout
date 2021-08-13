@@ -22,38 +22,26 @@ export default {
   },
   data: () => ({
     state: {
-      bottom: 13,
       right: true,
       left: true,
     },
     history: {},
   }),
-  computed: {
-    left() {
-      return this.layout['left'] || [];
-    },
-    right() {
-      const r = this.layout['right'] || [];
-      return r;
-    },
-  },
+  computed: {},
   watch: {},
   methods: {
     toggle(name) {
       this.state[name] = !this.state[name];
     },
     remove(name, index) {
-      const layout = this.layout;
-      layout[name].splice(index, 1);
-      this.updateLayout(layout);
+      const layout = this.getLayout(name);
+      layout.items.splice(index, 1);
     },
     updateLayout(layout) {
       this.$emit('update:layout', layout);
     },
     getLayout(name) {
-      const layout = this.layout[name];
-      if (!layout) return {};
-      return layout;
+      return this.layout[name] || {};
     },
   },
   render(h) {
@@ -101,9 +89,9 @@ export default {
         default: {
           if (items && items.length > 0) {
             for (const index in items) {
-              if (Object.hasOwnProperty.call(layout, index)) {
+              if (Object.hasOwnProperty.call(items, index)) {
                 const v = items[index];
-                if (!layout._key) {
+                if (!v._key) {
                   const key = v.key || v.name || Number(new Date());
                   this.layout[name]['items'][
                     index
