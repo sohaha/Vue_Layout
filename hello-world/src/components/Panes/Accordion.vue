@@ -18,25 +18,78 @@ export default {
       },
     },
   },
+  data: () => ({
+    rawHeight: 0,
+  }),
   mounted() {
-    this.$nextTick(() => {});
+    console.warn('mounted');
+    this.$nextTick(() => {
+      this.items.forEach((item, index) => {
+        this.bindBoard(index);
+      });
+    });
+  },
+  beforeDestroy() {
+    console.warn('destroyed');
+    this.items.forEach(item => {
+      if (!item._bindBoard) return;
+      item._bindBoard.unset();
+      item._bindBoard = null;
+    });
   },
   methods: {
     bindBoard(index, e) {
+      if (this.items[index]._bindBoard) {
+        console.log('绑定过-', index);
+        return;
+      }
       const name = 'board_' + index;
+      const item = this.items[index];
+      item._bindBoard = true;
       setTimeout(() => {
         const el = this.$refs[name];
-        console.log(name, el, e);
+        // console.log(name, el, e);
         const interactObj = interact(el);
-        interactObj.draggable({
+        // interactObj.draggable({
+        //   listeners: {
+        //     move(event) {
+        //       console.log(event.pageX, event.pageY);
+        //     },
+        //   },
+        // });
+        interactObj.resizable({
+          edges: { top: false, left: false, bottom: true, right: false },
+          modifiers: [
+            interact.modifiers.aspectRatio({
+              ratio: 'preserve',
+            }),
+          ],
           listeners: {
             move(event) {
-              console.log(event.pageX, event.pageY);
+              // console.log(event);
+              // let { x, y } = event.target.dataset;
+              // x = (parseFloat(x) || 0) + event.deltaRect.left;
+              // y = (parseFloat(y) || 0) + event.deltaRect.top;
+              Object.assign(event.target.style, {
+                height: `${event.rect.height}px`,
+                // transform: `translate(${x}px, ${y}px)`,
+              });
+
+              // Object.assign(event.target.dataset, { x, y });
+            },
+            end(event) {
+              if (event.rect.height === 0) {
+                item.open = false;
+              } else {
+                item.open = true;
+              }
+              Vue.set(item, 'height', el.clientHeight + 'px');
             },
           },
         });
-        console.log(interactObj);
-      }, 1000);
+        // console.log(interactObj);
+        this.items[index]._bindBoard = interactObj;
+      }, 10);
       return;
       // console.log(el);
       // console.log(el.elm);
@@ -88,10 +141,18 @@ export default {
     },
     toggle(num) {
       if (this.items[num].detach) return;
+      // if (this.items[num].open) {
+      //   Vue.set(
+      //     this.items[num],
+      //     'height',
+      //     this.$refs['board_' + num].clientHeight + 'px'
+      //   );
+      // }
       Vue.set(this.items[num], 'open', !this.items[num].open);
     },
   },
   render(h) {
+    console.warn('render');
     const items = [];
     const t = this;
     for (const index in this.items) {
@@ -158,7 +219,11 @@ export default {
             class: 'accotdion--board',
             style: {
               // display: item.open ? '' : 'none',
-              height: item.open ? 'calc(100% - 22px)' : '0',
+              height: item.open
+                ? item.height
+                  ? item.height
+                  : 'calc(100% - 22px)'
+                : 0,
             },
             ref: 'board_' + index,
           },
@@ -170,7 +235,6 @@ export default {
           ]
         );
         children.push(el);
-        this.bindBoard(index, el);
         items.push(
           h(
             'div',
@@ -248,7 +312,6 @@ export default {
 
 .accotdion--board {
   overflow: hidden;
-  transition: height 0.5s;
   height: calc(100% - 22px);
 }
 .board {

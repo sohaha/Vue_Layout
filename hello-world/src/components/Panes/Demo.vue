@@ -51,7 +51,7 @@ export default {
         minSize: 30,
         items: [
           {
-            name: '中间',
+            name: '中 间',
             component: 'full',
             open: true,
             props: { el: this.$refs.layout },

@@ -73,7 +73,7 @@ export default {
                 minSize: minSize,
               },
             },
-            ['底部']
+            ['底部框']
           );
         case 'content':
           child.push(
