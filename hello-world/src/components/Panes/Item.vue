@@ -1,5 +1,5 @@
 <template>
-  <div class="panes__pane" :style="style" @click="onPaneClick($event, _uid)">
+  <div class="panes__pane" :style="style" @click="clickPane($event, _uid)">
     <slot />
   </div>
 </template>
@@ -9,7 +9,7 @@ import { toSize } from './utils';
 
 export default {
   name: 'Item',
-  inject: ['requestUpdate', 'addPane', 'removePane', 'onPaneClick'],
+  inject: ['requestUpdate', 'addPane', 'removePane', 'clickPane'],
   props: {
     size: { type: [Number, String], default: null },
     minSize: { type: [Number, String], default: 0 },

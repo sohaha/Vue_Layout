@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Example2 from './components/Panes/Demo';
+import Example2 from './components/Panes/Example/Example';
 // import Example from './components/SplitPane/Example';
 
 export default {

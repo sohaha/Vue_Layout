@@ -18,19 +18,15 @@ export default {
       },
     },
   },
-  data: () => ({
-    rawHeight: 0,
-  }),
+  data: () => ({}),
   mounted() {
-    console.warn('mounted');
     this.$nextTick(() => {
-      this.items.forEach((item, index) => {
+      this.items.forEach((_, index) => {
         this.bindBoard(index);
       });
     });
   },
   beforeDestroy() {
-    console.warn('destroyed');
     this.items.forEach(item => {
       if (!item._bindBoard) return;
       item._bindBoard.unset();
@@ -40,16 +36,15 @@ export default {
   methods: {
     bindBoard(index, e) {
       if (this.items[index]._bindBoard) {
-        console.log('绑定过-', index);
         return;
       }
+      const t = this;
       const name = 'board_' + index;
-      const item = this.items[index];
-      item._bindBoard = true;
+      this.items[index]._bindBoard = true;
       setTimeout(() => {
         const el = this.$refs[name];
-        // console.log(name, el, e);
-        const interactObj = interact(el);
+        const board = el.querySelector('.accotdion--board > div');
+        const interactObj = interact(board);
         // interactObj.draggable({
         //   listeners: {
         //     move(event) {
@@ -58,7 +53,7 @@ export default {
         //   },
         // });
         interactObj.resizable({
-          edges: { top: false, left: false, bottom: true, right: false },
+          edges: { bottom: true },
           modifiers: [
             interact.modifiers.aspectRatio({
               ratio: 'preserve',
@@ -66,61 +61,28 @@ export default {
           ],
           listeners: {
             move(event) {
-              // console.log(event);
-              // let { x, y } = event.target.dataset;
-              // x = (parseFloat(x) || 0) + event.deltaRect.left;
-              // y = (parseFloat(y) || 0) + event.deltaRect.top;
+              event.stopPropagation();
               Object.assign(event.target.style, {
                 height: `${event.rect.height}px`,
-                // transform: `translate(${x}px, ${y}px)`,
               });
-
-              // Object.assign(event.target.dataset, { x, y });
             },
             end(event) {
               if (event.rect.height === 0) {
-                item.open = false;
+                t.items[index].open = false;
               } else {
-                item.open = true;
+                t.items[index].open = true;
+
+                t.items[index].height = board.clientHeight + 'px';
               }
-              Vue.set(item, 'height', el.clientHeight + 'px');
             },
           },
         });
-        // console.log(interactObj);
         this.items[index]._bindBoard = interactObj;
+        const height = board.clientHeight;
+        if (height > 0) {
+          this.items[index].height = height + 'px';
+        }
       }, 10);
-      return;
-      // console.log(el);
-      // console.log(el.elm);
-      // const interactObj = interact(el);
-      // // // interactObj.styleCursor(false);
-      // interactObj.resizable({
-      //   edges: { top: true, left: true, bottom: true, right: true },
-      //   modifiers: [
-      //     interact.modifiers.aspectRatio({
-      //       ratio: 'preserve',
-      //     }),
-      //   ],
-      //   listeners: {
-      //     move: function(event) {
-      //       const { x, y } = event.target.dataset;
-      //       console.log(x, y);
-      //     },
-      //   },
-      // });
-      // window['a'] = interactObj;
-      // interactObj.draggable({
-      //   listeners: {
-      //     move(event) {
-      //       console.log(event.pageX, event.pageY);
-      //     },
-      //   },
-      // });
-
-      // interactObj.on('resizestart resizemove resizeend', event => {
-      //   console.log(event);
-      // });
     },
     boardClass(num) {
       return {
@@ -141,18 +103,10 @@ export default {
     },
     toggle(num) {
       if (this.items[num].detach) return;
-      // if (this.items[num].open) {
-      //   Vue.set(
-      //     this.items[num],
-      //     'height',
-      //     this.$refs['board_' + num].clientHeight + 'px'
-      //   );
-      // }
       Vue.set(this.items[num], 'open', !this.items[num].open);
     },
   },
   render(h) {
-    console.warn('render');
     const items = [];
     const t = this;
     for (const index in this.items) {
@@ -212,33 +166,39 @@ export default {
               ),
             ]
           ),
-        ];
-        const el = h(
-          'div',
-          {
-            class: 'accotdion--board',
-            style: {
-              // display: item.open ? '' : 'none',
-              height: item.open
-                ? item.height
-                  ? item.height
-                  : 'calc(100% - 22px)'
-                : 0,
+          h(
+            'div',
+            {
+              class: 'accotdion--board',
             },
-            ref: 'board_' + index,
-          },
-          [
-            h(item.component, {
-              props: item.props || {},
-              on: item.on || {},
-            }),
-          ]
-        );
-        children.push(el);
+            [
+              h(
+                'div',
+                {
+                  style: {
+                    height: item.open
+                      ? item.height
+                        ? item.height
+                        : 'calc(100% - 22px)'
+                      : 0,
+                  },
+                },
+                [
+                  h(item.component, {
+                    props: item.props || {},
+                    on: item.on || {},
+                  }),
+                ]
+              ),
+            ]
+          ),
+        ];
+
         items.push(
           h(
             'div',
             {
+              ref: 'board_' + index,
               key: item._key || index,
               class: this.boardClass(index),
               attrs: {
@@ -262,7 +222,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@text-color: rgb(107, 114, 128);
+@import './utils.less';
+
 .accotdion {
   width: 100%;
   height: 100%;
@@ -273,46 +234,30 @@ export default {
 }
 
 .accotdion--title {
-  overflow: hidden;
-  transition: all 0.2s;
-  background: #d8d4c4;
-  font-size: 12px;
-  padding: 2px;
-  height: 22px;
-  color: @text-color;
-  position: relative;
-  display: flex;
-
-  & > div {
-    flex: 1;
-    text-align: left;
-    padding: 0 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  svg {
-    width: 13px;
-    height: 13px;
-    fill: @text-color;
-  }
-
-  span {
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
-    font-size: 2em;
-  }
+  .title();
 }
 
 .accotdion--board {
-  overflow: hidden;
+  overflow: auto;
   height: calc(100% - 22px);
+  & > div {
+    position: relative;
+    &:hover:after {
+      opacity: 1;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 2px;
+      transition: opacity 0.4s;
+      background-color: rgba(0, 0, 0, 0.05);
+      opacity: 0;
+      z-index: 1;
+    }
+  }
 }
 .board {
   background: #fff;

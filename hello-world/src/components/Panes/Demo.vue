@@ -1,7 +1,7 @@
 <template>
   <div id="demo" class="w-screen h-screen bg-gray-100">
     <div class="container h-full m-auto bg-white p-5 text-gray-500 text-center">
-      <h3>Demo</h3>
+      <h3 @click="saveLayout">Demo</h3>
       <div class="select-none py-5 text-sm">
         <span @click="add('left')">左边插入</span> |
         <span @click="add('centre')">中间插入</span> |
@@ -11,7 +11,7 @@
           <span @click="toggle('centre')">中间切换</span> |
           <span @click="toggle('right')">右边切换</span> |
         </div>
-        <idea-layout ref="layout" :layout.sync="layout" />
+        <idea-layout ref="layout" :layout="layout" />
       </div>
     </div>
   </div>
@@ -88,8 +88,12 @@ export default {
       },
     };
     this.layout = layout;
+    this.$refs.layout.set(layout);
   },
   methods: {
+    saveLayout() {
+      console.log(this.$refs.layout.get());
+    },
     toggle(key) {
       this.$refs.layout.toggle(key);
     },

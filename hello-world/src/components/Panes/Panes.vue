@@ -8,7 +8,7 @@ export default {
       requestUpdate: this.requestUpdate,
       addPane: this.addPane,
       removePane: this.removePane,
-      onPaneClick: this.onPaneClick,
+      clickPane: this.clickPane,
     };
   },
   props: {
@@ -69,11 +69,9 @@ export default {
     update(pane) {
       if (!pane) return;
       const size = this.indexedPanes[pane.id].size;
-
       pane.update({
         [direction(this, 'height', 'width')]: size === null ? '' : `${size}%`,
       });
-
       if (size === null) {
         setTimeout(() => {
           this.indexedPanes[pane.id].size = pane.getSize();
@@ -154,7 +152,7 @@ export default {
       if (!this.touch.dragging)
         this.$emit('splitter-click', this.panes[splitterIndex]);
     },
-    onPaneClick(event, paneId) {
+    clickPane(event, paneId) {
       this.$emit('click', this.indexedPanes[paneId]);
     },
     getCurrentMouseDrag(event) {
@@ -441,9 +439,11 @@ export default {
       });
     },
     resetPaneSizes(changedPanes = {}) {
-      if (!changedPanes.addedPane && !changedPanes.removedPane)
-        this.initialPanesSizing();
-      else if (
+      if (!changedPanes.addedPane && !changedPanes.removedPane) {
+        this.initSize();
+      } else if (this.panes.length === 1) {
+        this.panes[0].size = 100;
+      } else if (
         this.panes.some(
           pane => pane.givenSize !== null || pane.min || pane.max < 100
         )
@@ -472,7 +472,7 @@ export default {
       if (leftToAllocate > 0.1)
         this.readjustSizes(leftToAllocate, ungrowable, unshrinkable);
     },
-    initialPanesSizing() {
+    initSize() {
       let leftToAllocate = 100;
       const ungrowable = [];
       const unshrinkable = [];
@@ -529,7 +529,10 @@ export default {
             addedPane.id === pane.id
           )
         )
-          pane.size = Math.max(Math.min(equalSpace, pane.max), pane.min);
+          pane.size =
+            this.panes.length === 1
+              ? 100
+              : Math.max(Math.min(equalSpace, pane.max), pane.min);
 
         leftToAllocate -= pane.size;
         if (pane.size >= pane.max) ungrowable.push(pane.id);
@@ -610,13 +613,13 @@ export default {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    .panes--vertical & {
-      transition: width 0.2s ease-out;
+    .panes--vertical > & {
+      transition: width 0.1s ease-out;
     }
-    .panes--horizontal & {
-      transition: height 0.2s ease-out;
+    .panes--horizontal > & {
+      transition: height 0.1s ease-out;
     }
-    .panes--dragging & {
+    .panes--dragging > & {
       transition: none;
     }
   }
