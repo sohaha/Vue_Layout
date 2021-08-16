@@ -64,11 +64,23 @@ export default {
                 class: 'bottom--title',
               },
               [
-                h('span', { class: '' }, [
-                  createSvg(h, [
-                    'M512 512m-160 0a160 160 0 1 0 320 0 160 160 0 1 0-320 0Z',
-                  ]),
-                ]),
+                h(
+                  'span',
+                  {
+                    class: '',
+                    on: {
+                      click(event) {
+                        event.stopPropagation();
+                        t.state = !t.state;
+                      },
+                    },
+                  },
+                  [
+                    createSvg(h, [
+                      'M512 512m-160 0a160 160 0 1 0 320 0 160 160 0 1 0-320 0Z',
+                    ]),
+                  ]
+                ),
                 h('div', {}, this.name),
                 h(
                   'span',

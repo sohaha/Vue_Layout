@@ -43,7 +43,6 @@ export default {
     height: '700px',
   }),
   mounted() {
-    const t = this;
     const layout = {
       right: {
         size: 15,
@@ -60,16 +59,6 @@ export default {
             component: 'full',
             open: true,
             props: { el: this.$refs.layout },
-          },
-          {
-            name: '动态插入折叠',
-            component: 'add',
-            open: true,
-            on: {
-              tap({ name, index }) {
-                t.add(name, index);
-              },
-            },
           },
         ],
       },
@@ -101,7 +90,7 @@ export default {
   },
   methods: {
     saveLayout() {
-      const json = JSON.stringify(this.$refs.layout.getLayout2());
+      const json = JSON.stringify(this.$refs.layout.getLayout());
       console.log('当前布局', json);
       localStorage.setItem('layout', json);
     },
@@ -116,7 +105,7 @@ export default {
       this.$refs.layout.loadLayout(layout);
     },
     toggle(name) {
-      this.$refs.layout.toggle(name);
+      this.$refs.layout.togglePane(name);
     },
     add(name, index) {
       const item = {

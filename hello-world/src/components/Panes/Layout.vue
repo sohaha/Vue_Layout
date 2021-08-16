@@ -9,6 +9,16 @@ import Vue from 'vue';
 export default {
   name: 'Layout',
   components: { Panes, Item, Accordion, Shrink, Bottom },
+  provide() {
+    return {
+      addBlock: this.addBlock,
+      removeBlock: this.removeBlock,
+      getLayout: this.getLayout,
+      loadLayout: this.getLayout,
+      togglePane: this.togglePane,
+      toggleFull: this.toggleFull,
+    };
+  },
   props: {
     layout: {
       type: Object,
@@ -24,7 +34,7 @@ export default {
     },
   },
   data: () => ({
-    contentPanes: null,
+    full: false,
     history: {},
   }),
   computed: {
@@ -36,7 +46,7 @@ export default {
     this.loadLayout(this.layout);
   },
   methods: {
-    getLayout2(removeAttr = ['props', 'on']) {
+    getLayout(removeAttr = ['props', 'on']) {
       const history = {};
       for (const key in this.history) {
         if (Object.hasOwnProperty.call(this.history, key)) {
@@ -57,17 +67,34 @@ export default {
             }
           }
           history[key] = { ...l };
-          history[key].items = items;
+          if (items.length) history[key].items = items;
         }
       }
       return history;
     },
     addBlock(name, item, index) {
       if (index !== undefined) {
-        this.history[name].splice(index, 0, item);
+        this.history[name]['items'].splice(index, 0, item);
       } else {
         this.history[name]['items'].push(item);
       }
+    },
+    toggleFull() {
+      this.full = !this.full;
+      const el = this.$el;
+      if (this.full) {
+        el.style.width = '100%';
+        el.style.height = '100%';
+        el.style.position = 'absolute';
+      } else {
+        el.style.width = '';
+        el.style.height = '600px';
+        el.style.position = '';
+      }
+
+      el.style.left = 0;
+      el.style.top = 0;
+      el.style.background = '#fff';
     },
     loadLayout(layout) {
       this.history = {};
@@ -88,17 +115,17 @@ export default {
       this.$nextTick(() => {
         this.history = history;
         setTimeout(() => {
-          this.contentPanes.componentInstance.initSize();
+          this.$refs.contentPanes.initSize();
         });
       });
     },
-    toggle(name) {
+    togglePane(name) {
       Vue.set(this.history[name], 'hidden', !this.history[name].hidden);
       setTimeout(() => {
-        this.contentPanes.componentInstance.initSize();
+        this.$refs.contentPanes.initSize();
       });
     },
-    remove(name, index) {
+    removeBlock(name, index) {
       const layout = this.history[name];
       layout.items.splice(index, 1);
     },
@@ -147,7 +174,7 @@ export default {
               },
               on: {
                 remove(index) {
-                  t.remove(name, index);
+                  t.removeBlock(name, index);
                 },
               },
             });
@@ -211,13 +238,10 @@ export default {
           )
         : '';
 
-    const contentInfo = this.history['content'] || {};
-    if (contentInfo.size === undefined) {
-      this.history['content'] = {};
-    }
     const contentPanes = h(
       'panes',
       {
+        ref: 'contentPanes',
         props: {},
         on: {
           resize(panes) {
@@ -231,7 +255,6 @@ export default {
         this.createItem(h, 'right'),
       ]
     );
-    this.contentPanes = contentPanes;
     const content = h(
       'item',
       {
@@ -239,7 +262,7 @@ export default {
           [`item__content`]: true,
         },
         props: {
-          size: contentInfo.size || null,
+          size: bottomInfo.size ? 100 - bottomInfo.size : null,
         },
       },
       [contentPanes]
@@ -256,7 +279,7 @@ export default {
         },
         on: {
           resize(panes) {
-            t.saveSize(['content', 'bottom'], panes);
+            t.saveSize(['', 'bottom'], panes);
           },
         },
         props: {

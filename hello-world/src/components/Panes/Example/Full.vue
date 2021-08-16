@@ -1,12 +1,13 @@
 <template>
   <div class="p-5">
-    <div class=" cursor-pointer" @click="tap">{{ text }}</div>
+    <div class="cursor-pointer" @click="tap">{{ text }}</div>
   </div>
 </template>
 
 <script>
 export default {
   name: 'Full',
+  inject: ['toggleFull'],
   props: {
     el: {
       type: Object,
@@ -26,20 +27,7 @@ export default {
   methods: {
     tap() {
       this.full = !this.full;
-      const el = this.el.$el;
-      if (this.full) {
-        el.style.width = '100%';
-        el.style.height = '100%';
-        el.style.position = 'absolute';
-      } else {
-        el.style.width = '';
-        el.style.height = '600px';
-        el.style.position = '';
-      }
-
-      el.style.left = 0;
-      el.style.top = 0;
-      el.style.background = '#fff';
+      this.toggleFull();
     },
   },
 };

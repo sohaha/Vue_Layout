@@ -15,12 +15,19 @@
 <script>
 export default {
   name: 'Add',
+  inject: ['addBlock', 'clickPane'],
   props: {},
   data: () => ({}),
   computed: {},
   methods: {
     tap(name, index) {
-      this.$emit('tap', { name, index });
+      const item = {
+        name: 'New ' + Number(new Date()),
+        component: 'other',
+        open: true,
+        props: { val: '新建' + Number(new Date()) },
+      };
+      this.addBlock(name, item, index);
     },
   },
 };
