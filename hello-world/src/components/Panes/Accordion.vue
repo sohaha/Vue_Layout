@@ -21,8 +21,7 @@ export default {
   },
   data: () => ({}),
   watch: {
-    items(v) {
-      console.log('变化了');
+    items() {
       this.init();
     },
   },
@@ -66,9 +65,9 @@ export default {
         interactObj.draggable({
           preventDefault: 'always',
           allowFrom: '.accotdion--title',
+          enabled: t.items[index].detach,
           listeners: {
             start(event) {
-              console.log(event.type, event);
               x = t.items[index].x || 0;
               y = t.items[index].y || 0;
             },
@@ -82,7 +81,9 @@ export default {
               t.items[index].y = y;
             },
           },
-        });
+        }).actionChecker = (pointer, event) => {
+          console.log(pointer, event);
+        };
 
         interactObj.resizable({
           ...this.resizableOptions(index),
@@ -142,11 +143,16 @@ export default {
       };
     },
     detachStyle(index) {
-      const item = this.items[index];
-      const style = { width: item.width, height: item.height };
-      if (!item.detach) {
+      const { detach, width, height, open, size, x, y } = this.items[index];
+      const style = {
+        width,
+        height,
+        transform: `translate(${x || 0}px, ${y || 0}px)`,
+      };
+      if (!detach) {
         style.width = 'auto';
-        style.height = item.open ? item.size || 'auto' : '22px';
+        style.transform = 'none';
+        style.height = open ? size || 'auto' : '22px';
       }
       return style;
     },
@@ -183,6 +189,7 @@ export default {
       board.resizable({
         ...this.resizableOptions(index),
       });
+      board.options.drag.enabled = detach;
     },
     remove(index) {
       this.$emit('remove', index);
