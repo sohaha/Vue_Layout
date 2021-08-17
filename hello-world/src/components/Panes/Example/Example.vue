@@ -1,6 +1,9 @@
 <template>
-  <div id="demo" class="w-screen h-screen bg-gray-100">
-    <div class="container h-full m-auto text-gray-500 text-center bg-gray-100">
+  <div
+    id="demo"
+    class="w-screen h-screen bg-gray-100  text-gray-500  text-center bg-gray-100"
+  >
+    <!-- <div class="container h-full m-auto text-gray-500 text-center bg-gray-100">
       <div class="select-none py-2 text-sm">
         <div class="">
           <span @click="saveLayout">保存布局</span> |
@@ -16,10 +19,10 @@
           <span @click="toggle('centre')">中间切换</span> |
           <span @click="toggle('right')">右边切换</span> |
           <span @click="toggle('bottom')">底部切换</span>
-        </div>
-        <layout ref="layout" :height="height" :layout="layout" />
-      </div>
-    </div>
+        </div> -->
+    <layout ref="layout" :height="height" :width="width" :layout="layout" />
+    <!-- </div> -->
+    <!-- </div> -->
   </div>
 </template>
 
@@ -29,18 +32,19 @@ import { install } from '../index';
 
 import Other from './Other';
 import Full from './Full';
-import Add from './Add';
+import Function from './Function';
 
 install(Other);
 install(Full);
-install(Add);
+install(Function);
 
 export default {
   name: 'Demo',
   components: { Layout },
   data: () => ({
     layout: {},
-    height: '700px',
+    height: '100vh',
+    width: '100vw',
   }),
   mounted() {
     const layout = {
@@ -66,7 +70,7 @@ export default {
         size: 20,
         riseHeight: 60,
         name: '底部',
-        component: 'add',
+        component: 'function',
       },
       left: {
         maxSize: 60,
@@ -88,36 +92,7 @@ export default {
     this.layout = layout;
     this.$refs.layout.loadLayout(layout);
   },
-  methods: {
-    saveLayout() {
-      const json = JSON.stringify(this.$refs.layout.getLayout());
-      console.log('当前布局', json);
-      localStorage.setItem('layout', json);
-    },
-    recoverLayout() {
-      let layout = localStorage.getItem('layout');
-      if (!layout) {
-        alert('请先保存一遍布局');
-        return;
-      }
-      layout = JSON.parse(layout);
-      console.log('当前布局', layout);
-      this.$refs.layout.loadLayout(layout);
-    },
-    toggle(name) {
-      this.$refs.layout.togglePane(name);
-    },
-    add(name, index) {
-      const item = {
-        name: 'New ' + Number(new Date()),
-        component: 'other',
-        open: true,
-        props: { val: '新建' + Number(new Date()) },
-      };
-
-      this.$refs.layout.addBlock(name, item, index);
-    },
-  },
+  methods: {},
 };
 </script>
 

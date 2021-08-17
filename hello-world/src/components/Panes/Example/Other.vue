@@ -1,7 +1,6 @@
 <template>
   <div class="py-5">
-    <div>测试组件</div>
-    <input v-model="data" class="w-2/3 m-auto px-2 border border-red-300" >
+    <div>测试组件 {{ val }}</div>
   </div>
 </template>
 

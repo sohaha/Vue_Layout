@@ -15,7 +15,7 @@ export default {
       addBlock: this.addBlock,
       removeBlock: this.removeBlock,
       getLayout: this.getLayout,
-      loadLayout: this.getLayout,
+      loadLayout: this.loadLayout,
       togglePane: this.togglePane,
       toggleFull: this.toggleFull,
       layoutRef: this.layoutRef,
@@ -51,7 +51,7 @@ export default {
     layoutRef() {
       return this;
     },
-    getLayout(removeAttr = ['props', 'on']) {
+    getLayout(removeAttr = ['on']) {
       const history = {};
       for (const key in this.history) {
         if (Object.hasOwnProperty.call(this.history, key)) {

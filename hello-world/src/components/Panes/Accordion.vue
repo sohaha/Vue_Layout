@@ -61,15 +61,15 @@ export default {
         const interactObj = interact(board);
         let x;
         let y;
-
+        const item = t.items[index];
         interactObj.draggable({
           preventDefault: 'always',
           allowFrom: '.accotdion--title',
           enabled: t.items[index].detach,
           listeners: {
             start(event) {
-              x = t.items[index].x || 0;
-              y = t.items[index].y || 0;
+              x = item.x || 0;
+              y = item.y || 0;
             },
             move(event) {
               x = (parseFloat(x) || 0) + event.dx;
@@ -77,26 +77,24 @@ export default {
               event.target.style.transform = `translate(${x}px, ${y}px)`;
             },
             end(event) {
-              t.items[index].x = x;
-              t.items[index].y = y;
+              item.x = x;
+              item.y = y;
             },
           },
-        }).actionChecker = (pointer, event) => {
-          console.log(pointer, event);
-        };
+        });
 
         interactObj.resizable({
           ...this.resizableOptions(index),
           allowFrom: '.accotdion--board',
           listeners: {
             start(event) {
-              x = t.items[index].x || 0;
-              y = t.items[index].y || 0;
+              x = item.x || 0;
+              y = item.y || 0;
             },
             move(event) {
               event.stopPropagation();
               const v = { height: `${event.rect.height}px` };
-              if (t.items[index].detach) {
+              if (item.detach) {
                 x = (parseFloat(x) || 0) + event.deltaRect.left;
                 y = (parseFloat(y) || 0) + event.deltaRect.top;
                 v['width'] = `${event.rect.width}px`;
@@ -105,17 +103,17 @@ export default {
               Object.assign(event.target.style, v);
             },
             end(event) {
-              t.items[index].x = x;
-              t.items[index].y = y;
+              item.x = x;
+              item.y = y;
               if (event.rect.height <= 22) {
-                t.items[index].open = false;
+                item.open = false;
               } else {
-                t.items[index].open = true;
-                if (t.items[index].detach) {
-                  t.items[index].height = board.offsetHeight + 'px';
-                  t.items[index].width = board.offsetWidth + 'px';
+                item.open = true;
+                if (item.detach) {
+                  item.height = board.offsetHeight + 'px';
+                  item.width = board.offsetWidth + 'px';
                 } else {
-                  t.items[index].size = board.offsetHeight + 'px';
+                  item.size = board.offsetHeight + 'px';
                 }
               }
             },
@@ -165,7 +163,7 @@ export default {
         options.edges = { bottom: true, top: false, left: true, right: true };
         options.modifiers = [
           interact.modifiers.restrictSize({
-            min: { width: 50, height: 22 },
+            min: { width: 50, height: 26 },
             // max: { ...this.layoutSize() },
           }),
         ];
