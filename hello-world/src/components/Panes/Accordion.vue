@@ -6,10 +6,11 @@ import '@interactjs/actions/resize';
 import '@interactjs/modifiers';
 import '@interactjs/dev-tools';
 import interact from '@interactjs/interact';
-import { createSvg } from './utils';
+import { createSvg, svgs } from './utils';
 
 export default {
   name: 'Accordion',
+  inject: ['layoutRef'],
   props: {
     items: {
       type: Array,
@@ -19,14 +20,17 @@ export default {
     },
   },
   data: () => ({}),
+  watch: {
+    items(v) {
+      console.log('变化了');
+      this.init();
+    },
+  },
   mounted() {
-    this.$nextTick(() => {
-      this.items.forEach((_, index) => {
-        this.bindBoard(index);
-      });
-    });
+    this.init();
   },
   beforeDestroy() {
+    console.log('beforeDestroy');
     this.items.forEach(item => {
       if (!item._bindBoard) return;
       item._bindBoard.unset();
@@ -34,7 +38,18 @@ export default {
     });
   },
   methods: {
-    bindBoard(index, e) {
+    init() {
+      this.$nextTick(() => {
+        this.items.forEach((_, index) => {
+          this.bindBoard(index);
+        });
+      });
+    },
+    layoutSize() {
+      const el = this.layoutRef().$el;
+      return { width: el.clientWidth, height: el.clientHeight };
+    },
+    bindBoard(index) {
       if (this.items[index]._bindBoard) {
         return;
       }
@@ -43,75 +58,141 @@ export default {
       this.items[index]._bindBoard = true;
       setTimeout(() => {
         const el = this.$refs[name];
-        const board = el.querySelector('.accotdion--board > div');
+        const board = el;
         const interactObj = interact(board);
-        // interactObj.draggable({
-        //   listeners: {
-        //     move(event) {
-        //       console.log(event.pageX, event.pageY);
-        //     },
-        //   },
-        // });
-        interactObj.resizable({
-          edges: { bottom: true },
-          modifiers: [
-            interact.modifiers.aspectRatio({
-              ratio: 'preserve',
-            }),
-          ],
+        let x;
+        let y;
+
+        interactObj.draggable({
+          preventDefault: 'always',
+          allowFrom: '.accotdion--title',
           listeners: {
+            start(event) {
+              console.log(event.type, event);
+              x = t.items[index].x || 0;
+              y = t.items[index].y || 0;
+            },
             move(event) {
-              event.stopPropagation();
-              Object.assign(event.target.style, {
-                height: `${event.rect.height}px`,
-              });
+              x = (parseFloat(x) || 0) + event.dx;
+              y = (parseFloat(y) || 0) + event.dy;
+              event.target.style.transform = `translate(${x}px, ${y}px)`;
             },
             end(event) {
-              if (event.rect.height === 0) {
+              t.items[index].x = x;
+              t.items[index].y = y;
+            },
+          },
+        });
+
+        interactObj.resizable({
+          ...this.resizableOptions(index),
+          allowFrom: '.accotdion--board',
+          listeners: {
+            start(event) {
+              x = t.items[index].x || 0;
+              y = t.items[index].y || 0;
+            },
+            move(event) {
+              event.stopPropagation();
+              const v = { height: `${event.rect.height}px` };
+              if (t.items[index].detach) {
+                x = (parseFloat(x) || 0) + event.deltaRect.left;
+                y = (parseFloat(y) || 0) + event.deltaRect.top;
+                v['width'] = `${event.rect.width}px`;
+                v['transform'] = `translate(${x}px, ${y}px)`;
+              }
+              Object.assign(event.target.style, v);
+            },
+            end(event) {
+              t.items[index].x = x;
+              t.items[index].y = y;
+              if (event.rect.height <= 22) {
                 t.items[index].open = false;
               } else {
                 t.items[index].open = true;
-
-                t.items[index].height = board.clientHeight + 'px';
+                if (t.items[index].detach) {
+                  t.items[index].height = board.offsetHeight + 'px';
+                  t.items[index].width = board.offsetWidth + 'px';
+                } else {
+                  t.items[index].size = board.offsetHeight + 'px';
+                }
               }
             },
           },
         });
+
         this.items[index]._bindBoard = interactObj;
-        const height = board.clientHeight;
-        if (height > 0) {
-          this.items[index].height = height + 'px';
-        }
+        this.initArrt(board, index);
       }, 10);
     },
-    boardClass(num) {
+    initArrt(board, index) {
+      const { x, y } = this.items[index];
+      if (x !== null || y !== null) {
+        Object.assign(board.style, {
+          transform: `translate(${x || 0}px, ${y || 0}px)`,
+        });
+      }
+    },
+    boardClass(index) {
       return {
         board: true,
-        open: this.items[num].open,
-        full: this.items[num].full,
-        detach: this.items[num].detach,
+        open: this.items[index].open,
+        full: this.items[index].full,
+        detach: this.items[index].detach,
       };
     },
-    full(num) {
-      const full = !this.items[num].full;
-      Vue.set(this.items[num], 'full', full);
+    detachStyle(index) {
+      const item = this.items[index];
+      const style = { width: item.width, height: item.height };
+      if (!item.detach) {
+        style.width = 'auto';
+        style.height = item.open ? item.size || 'auto' : '22px';
+      }
+      return style;
+    },
+    resizableOptions(index) {
+      const options = {
+        edges: { bottom: true, top: false, left: false, right: false },
+        modifiers: [],
+      };
+      if (this.items[index].detach) {
+        options.edges = { bottom: true, top: false, left: true, right: true };
+        options.modifiers = [
+          interact.modifiers.restrictSize({
+            min: { width: 50, height: 22 },
+            // max: { ...this.layoutSize() },
+          }),
+        ];
+      }
+      return options;
+    },
+    full(index) {
+      const full = !this.items[index].full;
+      Vue.set(this.items[index], 'full', full);
       if (full) {
-        Vue.set(this.items[num], 'open', true);
+        Vue.set(this.items[index], 'open', true);
       }
     },
-    detach(num) {
-      const detach = !this.items[num].detach;
-      Vue.set(this.items[num], 'detach', detach);
+    detach(index) {
+      const detach = !this.items[index].detach;
+      Vue.set(this.items[index], 'detach', detach);
+      const board = this.items[index]._bindBoard;
       if (detach) {
-        Vue.set(this.items[num], 'open', true);
+        Vue.set(this.items[index], 'open', true);
       }
+      board.resizable({
+        ...this.resizableOptions(index),
+      });
     },
-    remove(num) {
-      this.$emit('remove', num);
+    remove(index) {
+      this.$emit('remove', index);
     },
-    toggle(num) {
-      if (this.items[num].full || this.items[num].detach) return;
-      Vue.set(this.items[num], 'open', !this.items[num].open);
+    toggle(index) {
+      if (this.items[index].full || this.items[index].detach) return;
+      Vue.set(this.items[index], 'open', !this.items[index].open);
+      if (this.items[index].height === '0px') {
+        this.items[index].height = null;
+      }
     },
   },
   render(h) {
@@ -133,9 +214,7 @@ export default {
             },
             [
               h('span', { class: 'accotdion--toggle' }, [
-                createSvg(h, [
-                  'M96.196 671.807l415.804-415.632 415.803 415.632-63.616 63.445-352.209-352.017-352.102 352.017z',
-                ]),
+                createSvg(h, item.full || item.detach ? svgs.dot : svgs.arrows),
               ]),
               h('div', item.name),
               h(
@@ -149,29 +228,21 @@ export default {
                     },
                   },
                 },
-                [
-                  createSvg(h, [
-                    'M286.165333 798.165333L512 572.330667l225.834667 225.834666 60.330666-60.330666L572.330667 512l225.834666-225.834667-60.330666-60.330666L512 451.669333 286.165333 225.834667 225.834667 286.165333 451.669333 512l-225.834666 225.834667z',
-                  ]),
-                ]
+                [createSvg(h, svgs.delete)]
               ),
-              // h(
-              //   'span',
-              //   {
-              //     class: 'accotdion--detach',
-              //     on: {
-              //       click(event) {
-              //         event.stopPropagation();
-              //         t.detach(index);
-              //       },
-              //     },
-              //   },
-              //   [
-              //     createSvg(h, [
-              //       'M781.66217017 208.63562012H478.29779029c-9.29937744 0-17.25402856 3.29260253-23.84417701 9.87780761-6.6049807 6.60992408-9.89758325 14.53491211-9.89758325 23.84417701v303.36932398c0 9.29937744 3.29260253 17.21942138 9.89758325 23.82934546 6.59014916 6.56542945 14.54479957 9.88275171 23.84417701 9.8827517h303.36437988c9.3092649 0 17.25402856-3.31732154 23.82934618-9.87780762 6.61486816-6.61486816 9.90252662-14.53491211 9.90252662-23.83428955V242.35760474c0-9.31420898-3.28765845-17.23425293-9.89758325-23.84417701-6.58520508-6.58520508-14.52502465-9.87780761-23.83428955-9.87780761z m-404.50561476 337.05175805V444.5659182H242.35266137c-9.31915307 0-17.22930884 3.30743408-23.86395263 9.87780762-6.56048608 6.6049807-9.87780761 14.53491211-9.87780762 23.84417701v303.3594358c0 9.31420898 3.31237817 17.27380347 9.87780762 23.78485155 6.63464379 6.69396997 14.54479957 9.88769508 23.86395263 9.88769508H545.71704125c9.29937744 0 17.23425293-3.19372583 23.85406447-9.88769508 6.56542945-6.51104737 9.87780761-14.47064185 9.87780762-23.77990747v-134.82861303H478.31756592c-27.89318824 0-51.76208497-9.86792016-71.51275611-29.6235354-19.74572778-19.75067115-29.62353539-43.5849607-29.62353539-71.47814966l-0.01977564-0.03955054zM478.30273437 141.21142578h303.36437988c27.92285133 0 51.74725342 9.86792016 71.50286866 29.62353539 19.75561523 19.75561523 29.62353539 43.58990479 29.62353539 71.48803711v303.36437989c0 27.9327395-9.86792016 51.72253442-29.62353539 71.49792456-19.75561523 19.74572778-43.58001733 29.62353539-71.50286865 29.62353539h-134.81872559v134.8187256c0 27.9327395-9.88275171 51.72253442-29.62847876 71.49792456-19.75561523 19.77539086-43.60473633 29.66308594-71.50286866 29.66308594H242.34771729c-27.90307641 0-51.75714087-9.88769508-71.51275612-29.66308594C151.07934594 833.35009742 141.21142578 809.55535913 141.21142578 781.62261963V478.27307128c0-27.91296386 9.86792016-51.75714087 29.62353539-71.50286865 19.75561523-19.75561523 43.60968041-29.61859131 71.51275612-29.6185913h134.81378149V242.32299828c0-27.89813232 9.87780761-51.73242188 29.62353539-71.48803711C426.54064942 151.07934594 450.37493896 141.21142578 478.29779029 141.21142578z',
-              //     ]),
-              //   ]
-              // ),
+              h(
+                'span',
+                {
+                  class: 'accotdion--detach',
+                  on: {
+                    click(event) {
+                      event.stopPropagation();
+                      t.detach(index);
+                    },
+                  },
+                },
+                [createSvg(h, svgs.detach)]
+              ),
               h(
                 'span',
                 {
@@ -183,11 +254,7 @@ export default {
                     },
                   },
                 },
-                [
-                  createSvg(h, [
-                    'M237.1 294h557v435.7h-557zM774.5 128v41.3h136.7v164.9h48.1V128zM112.4 169.3h136.7V128H64.2v206.2h48.2zM911.2 854.3H774.5v41.3h184.8V689.4h-48.1zM112.4 689.4H64.2v206.2h184.9v-41.3H112.4z',
-                  ]),
-                ]
+                [createSvg(h, svgs.full)]
               ),
             ]
           ),
@@ -200,13 +267,7 @@ export default {
               h(
                 'div',
                 {
-                  style: {
-                    height: item.open
-                      ? item.height
-                        ? item.height
-                        : 'calc(100% - 22px)'
-                      : 0,
-                  },
+                  style: {},
                 },
                 [
                   h(item.component, {
@@ -226,6 +287,7 @@ export default {
               ref: 'board_' + index,
               key: item._key || index,
               class: this.boardClass(index),
+              style: this.detachStyle(index),
               attrs: {
                 draggable: item.full,
               },
@@ -248,6 +310,7 @@ export default {
 
 <style lang="less" scoped>
 @import './utils.less';
+@titleHeight: 22px;
 
 .accotdion {
   width: 100%;
@@ -264,7 +327,7 @@ export default {
 
 .accotdion--board {
   overflow: auto;
-  height: calc(100% - 22px);
+  height: calc(100% - @titleHeight);
   & > div {
     position: relative;
     &[style*='ns-resize']:after {
@@ -280,45 +343,55 @@ export default {
       transition: opacity 0.4s;
       background-color: rgba(0, 0, 0, 0.05);
       opacity: 0;
-      z-index: 1;
+      z-index: 100;
     }
   }
 }
+
 .board {
   background: #fff;
+  height: @titleHeight;
   &.open {
+    height: auto;
     .accotdion--toggle {
       transform: rotate(180deg);
     }
   }
   &.full {
     position: absolute;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    .accotdion--toggle,
+    z-index: 1000;
+    width: 100% !important;
+    height: 100% !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    border: 0 !important;
+    box-shadow: 1px 1px 3px #484545;
+    .accotdion--detach,
     .accotdion--delete {
       visibility: hidden !important;
     }
   }
   &.detach {
     position: absolute;
-    z-index: 1;
-    box-shadow: 1px 1px 1px #ddd, -1px 0 1px #ddd;
-    .accotdion--toggle,
+    z-index: 100;
+    left: 0;
+    top: 0;
+    box-shadow: 1px 1px 3px #484545;
+    border: 1px solid #ddd;
     .accotdion--delete {
       visibility: hidden !important;
     }
   }
   &:hover {
     .accotdion--full,
+    .accotdion--detach,
     .accotdion--delete {
       visibility: visible;
     }
   }
   .accotdion--delete,
+  .accotdion--detach,
   .accotdion--full {
     visibility: hidden;
     &:hover {

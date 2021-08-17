@@ -1,5 +1,5 @@
 <script>
-import { createSvg } from './utils';
+import { createSvg, svgs } from './utils';
 
 export default {
   name: 'Bottom',
@@ -75,11 +75,7 @@ export default {
                       },
                     },
                   },
-                  [
-                    createSvg(h, [
-                      'M512 512m-160 0a160 160 0 1 0 320 0 160 160 0 1 0-320 0Z',
-                    ]),
-                  ]
+                  [createSvg(h, svgs.dot)]
                 ),
                 h('div', {}, this.name),
                 h(
@@ -93,11 +89,7 @@ export default {
                       },
                     },
                   },
-                  [
-                    createSvg(h, [
-                      'M96.196 671.807l415.804-415.632 415.803 415.632-63.616 63.445-352.209-352.017-352.102 352.017z',
-                    ]),
-                  ]
+                  [createSvg(h, svgs.arrows)]
                 ),
               ]
             ),

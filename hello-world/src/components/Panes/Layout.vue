@@ -4,6 +4,7 @@ import Panes from './Panes';
 import Accordion from './Accordion';
 import Shrink from './Shrink';
 import Bottom from './Bottom';
+import { padItem } from './utils';
 import Vue from 'vue';
 
 export default {
@@ -17,6 +18,7 @@ export default {
       loadLayout: this.getLayout,
       togglePane: this.togglePane,
       toggleFull: this.toggleFull,
+      layoutRef: this.layoutRef,
     };
   },
   props: {
@@ -46,6 +48,9 @@ export default {
     this.loadLayout(this.layout);
   },
   methods: {
+    layoutRef() {
+      return this;
+    },
     getLayout(removeAttr = ['props', 'on']) {
       const history = {};
       for (const key in this.history) {
@@ -105,7 +110,7 @@ export default {
           const items = [];
           for (const key in l.items) {
             if (Object.hasOwnProperty.call(l.items, key)) {
-              items.push({ ...l.items[key] });
+              items.push(padItem(l.items[key]));
             }
           }
           history[key] = { ...l };
