@@ -96,7 +96,7 @@ export default {
                       class: ['item-title'],
                       on: {
                         click() {
-                          //   Vue.set(v, 'open', !v.open);
+                          //   this.$set(v, 'open', !v.open);
                           // e.preventDefault();
                           const target = item.componentInstance;
                           console.log(target.getCurrentSize(target));

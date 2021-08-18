@@ -1,5 +1,4 @@
 <script>
-import Vue from 'vue';
 import interact from '@interactjs/interact';
 import { createSvg, svgs } from './utils';
 
@@ -14,10 +13,7 @@ export default {
       },
     },
   },
-  data: () => ({
-    // todo 后期通过排序优先掉该属性
-    maxIndex: 100,
-  }),
+  data: () => ({}),
   watch: {
     items() {
       this.init();
@@ -28,9 +24,9 @@ export default {
   },
   beforeDestroy() {
     this.items.forEach(item => {
-      if (!item._bindBoard) return;
-      item._bindBoard.unset();
-      item._bindBoard = null;
+      if (!item._bind) return;
+      item._bind.unset();
+      item._bind = null;
     });
   },
   methods: {
@@ -46,12 +42,12 @@ export default {
       return { width: el.clientWidth, height: el.clientHeight };
     },
     bindBoard(index) {
-      if (this.items[index]._bindBoard) {
+      if (this.items[index]._bind) {
         return;
       }
       const t = this;
-      const name = 'board_' + index;
-      this.items[index]._bindBoard = true;
+      const name = 'item_' + index;
+      this.items[index]._bind = true;
       setTimeout(() => {
         const el = this.$refs[name];
         const board = el;
@@ -67,8 +63,8 @@ export default {
             start(event) {
               x = item.x || 0;
               y = item.y || 0;
-              if (item.zIndex <= t.maxIndex) {
-                item.zIndex = t.maxIndex + 1;
+              if (item.zIndex <= t.layoutRef().maxIndex) {
+                item.zIndex = t.layoutRef().maxIndex + 1;
               }
             },
             move(event) {
@@ -79,7 +75,7 @@ export default {
             end(event) {
               item.x = x;
               item.y = y;
-              t.maxIndex = item.zIndex;
+              t.layoutRef().maxIndex = item.zIndex;
             },
           },
         });
@@ -121,7 +117,7 @@ export default {
           },
         });
 
-        this.items[index]._bindBoard = interactObj;
+        this.items[index]._bind = interactObj;
         this.initArrt(board, index);
       }, 10);
     },
@@ -142,13 +138,32 @@ export default {
       };
     },
     movePlace(index, place) {
+      const offset = place;
+      const idx = Number(index);
       const item = this.items[index];
       const len = this.items.length;
-      const next = Number(index) + Number(place);
-      if (next > len || next < 0) {
-        return;
+      let tmpItem;
+      let next;
+      let i = 0;
+      while (true) {
+        next = idx + offset + i;
+        if (next > len || next < 0) {
+          return;
+        }
+        tmpItem = this.items[next];
+        if (!tmpItem) {
+          return;
+        }
+        if (!tmpItem.detach) {
+          break;
+        }
+        if (offset > 0) {
+          i++;
+        } else {
+          i--;
+        }
       }
-      const tmpItem = this.items[next];
+
       this.$set(this.items, next, item);
       this.$set(this.items, index, tmpItem);
     },
@@ -167,7 +182,7 @@ export default {
       const style = {
         width,
         height: open ? height : '22px',
-        zIndex: full ? this.maxIndex + 1 : zIndex,
+        zIndex: full ? this.layoutRef().maxIndex + 1 : zIndex,
         transform: `translate(${x || 0}px, ${y || 0}px)`,
       };
       if (!detach) {
@@ -195,17 +210,21 @@ export default {
     },
     full(index) {
       const full = !this.items[index].full;
-      Vue.set(this.items[index], 'full', full);
+      this.$set(this.items[index], 'full', full);
+      const board = this.items[index]._bind;
       if (full) {
-        Vue.set(this.items[index], 'open', true);
+        this.$set(this.items[index], 'open', true);
+        board.options.drag.enabled = false;
+      } else {
+        board.options.drag.enabled = this.items[index].detach;
       }
     },
     detach(index) {
       const detach = !this.items[index].detach;
-      Vue.set(this.items[index], 'detach', detach);
-      const board = this.items[index]._bindBoard;
+      this.$set(this.items[index], 'detach', detach);
+      const board = this.items[index]._bind;
       if (detach) {
-        Vue.set(this.items[index], 'open', true);
+        this.$set(this.items[index], 'open', true);
       }
       board.resizable({
         ...this.resizableOptions(index),
@@ -217,7 +236,7 @@ export default {
     },
     toggle(index) {
       if (this.items[index].full) return;
-      Vue.set(this.items[index], 'open', !this.items[index].open);
+      this.$set(this.items[index], 'open', !this.items[index].open);
       if (this.items[index].height === '0px') {
         this.items[index].height = null;
       }
@@ -366,12 +385,12 @@ export default {
           h(
             'div',
             {
-              ref: 'board_' + index,
+              ref: 'item_' + index,
               key: item._key || index,
               class: this.boardClass(index),
               style: this.detachStyle(index),
               attrs: {
-                draggable: item.full,
+                // draggable: item.full,
               },
             },
             children
@@ -433,6 +452,9 @@ export default {
 .board {
   background: #fff;
   height: @titleHeight;
+  &[style*='move'] {
+    opacity: 0.9;
+  }
   &.open {
     height: auto;
     .accotdion--toggle {

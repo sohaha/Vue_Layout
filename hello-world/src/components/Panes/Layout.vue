@@ -5,13 +5,12 @@ import Accordion from './Accordion';
 import Shrink from './Shrink';
 import Bottom from './Bottom';
 import { padItem } from './utils';
-import Vue from 'vue';
 import '@interactjs/auto-start';
 import '@interactjs/actions/drag';
 import '@interactjs/actions/drop';
 import '@interactjs/actions/resize';
 import '@interactjs/modifiers';
-import '@interactjs/dev-tools';
+// import '@interactjs/dev-tools';
 import interact from '@interactjs/interact';
 
 export default {
@@ -46,6 +45,7 @@ export default {
     full: false,
     history: {},
     bind: {},
+    maxIndex: 0, // todo 后期通过排序优先掉该属性
   }),
   computed: {
     emptyLayout() {
@@ -168,7 +168,7 @@ export default {
       });
     },
     togglePane(name) {
-      Vue.set(this.history[name], 'hidden', !this.history[name].hidden);
+      this.$set(this.history[name], 'hidden', !this.history[name].hidden);
       setTimeout(() => {
         this.$refs.contentPanes.initSize();
       });
@@ -195,7 +195,7 @@ export default {
       let state = layout['hidden'];
       if (state === undefined) {
         state = false;
-        Vue.set(layout, 'hidden', state);
+        this.$set(layout, 'hidden', state);
       }
       const size = layout.size;
       const minSize = layout.minSize || 0;
