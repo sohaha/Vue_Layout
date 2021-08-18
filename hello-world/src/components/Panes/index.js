@@ -17,7 +17,7 @@ export function install(name, component) {
         c = name;
     }
     if (indComponent.includes(n)) {
-        console.warn('There are components with the same');
+        console.warn('Existing components with the same');
 
         return;
     }
