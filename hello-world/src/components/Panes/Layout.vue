@@ -6,6 +6,13 @@ import Shrink from './Shrink';
 import Bottom from './Bottom';
 import { padItem } from './utils';
 import Vue from 'vue';
+import '@interactjs/auto-start';
+import '@interactjs/actions/drag';
+import '@interactjs/actions/drop';
+import '@interactjs/actions/resize';
+import '@interactjs/modifiers';
+import '@interactjs/dev-tools';
+import interact from '@interactjs/interact';
 
 export default {
   name: 'Layout',
@@ -38,11 +45,23 @@ export default {
   data: () => ({
     full: false,
     history: {},
+    bind: {},
   }),
   computed: {
     emptyLayout() {
       return Object.keys(this.history).length === 0;
     },
+  },
+  watch: {
+    history() {
+      console.log('history变化');
+    },
+  },
+  beforeDestroy() {
+    // this.history.forEach(item => {
+    //   console.log(item);
+    // });
+    this.release();
   },
   mounted() {
     this.loadLayout(this.layout);
@@ -51,7 +70,29 @@ export default {
     layoutRef() {
       return this;
     },
-    getLayout(removeAttr = ['on']) {
+    init() {
+      setTimeout(() => {
+        for (const name in this.bind) {
+          if (Object.hasOwnProperty.call(this.bind, name)) {
+            const obj = interact(this.$refs[name].$el);
+            this.bind[name] = obj;
+          }
+        }
+      }, 22);
+    },
+    release() {
+      for (const name in this.bind) {
+        if (Object.hasOwnProperty.call(this.bind, name)) {
+          console.log(name, this.bind[name]);
+          if (!this.bind[name]) {
+            continue;
+          }
+          this.bind[name].unset();
+          this.bind[name] = null;
+        }
+      }
+    },
+    getLayout(removeAttr = ['on', 'props']) {
       const history = {};
       for (const key in this.history) {
         if (Object.hasOwnProperty.call(this.history, key)) {
@@ -79,9 +120,9 @@ export default {
     },
     addBlock(name, item, index) {
       if (index !== undefined) {
-        this.history[name]['items'].splice(index, 0, item);
+        this.history[name]['items'].splice(index, 0, padItem(item));
       } else {
-        this.history[name]['items'].push(item);
+        this.history[name]['items'].push(padItem(item));
       }
     },
     toggleFull() {
@@ -102,6 +143,7 @@ export default {
       el.style.background = '#fff';
     },
     loadLayout(layout) {
+      this.release();
       this.history = {};
       const history = {};
       for (const key in layout) {
@@ -120,6 +162,7 @@ export default {
       this.$nextTick(() => {
         this.history = history;
         setTimeout(() => {
+          this.init();
           this.$refs.contentPanes.initSize();
         });
       });
@@ -151,7 +194,7 @@ export default {
       const items = layout['items'];
       let state = layout['hidden'];
       if (state === undefined) {
-        state = true;
+        state = false;
         Vue.set(layout, 'hidden', state);
       }
       const size = layout.size;
@@ -189,11 +232,14 @@ export default {
           }
         }
       }
-
-      return state
+      if (this.bind[name] === undefined) {
+        this.bind[name] = null;
+      }
+      return !state
         ? h(
             'item',
             {
+              ref: name,
               class: {
                 [`item__${name}`]: true,
               },
@@ -260,6 +306,7 @@ export default {
         this.createItem(h, 'right'),
       ]
     );
+
     const content = h(
       'item',
       {

@@ -1,10 +1,5 @@
 <script>
 import Vue from 'vue';
-import '@interactjs/auto-start';
-import '@interactjs/actions/drag';
-import '@interactjs/actions/resize';
-import '@interactjs/modifiers';
-import '@interactjs/dev-tools';
 import interact from '@interactjs/interact';
 import { createSvg, svgs } from './utils';
 
@@ -19,7 +14,10 @@ export default {
       },
     },
   },
-  data: () => ({}),
+  data: () => ({
+    // todo 后期通过排序优先掉该属性
+    maxIndex: 100,
+  }),
   watch: {
     items() {
       this.init();
@@ -29,7 +27,6 @@ export default {
     this.init();
   },
   beforeDestroy() {
-    console.log('beforeDestroy');
     this.items.forEach(item => {
       if (!item._bindBoard) return;
       item._bindBoard.unset();
@@ -70,6 +67,9 @@ export default {
             start(event) {
               x = item.x || 0;
               y = item.y || 0;
+              if (item.zIndex <= t.maxIndex) {
+                item.zIndex = t.maxIndex + 1;
+              }
             },
             move(event) {
               x = (parseFloat(x) || 0) + event.dx;
@@ -79,6 +79,7 @@ export default {
             end(event) {
               item.x = x;
               item.y = y;
+              t.maxIndex = item.zIndex;
             },
           },
         });
@@ -125,8 +126,8 @@ export default {
       }, 10);
     },
     initArrt(board, index) {
-      const { x, y } = this.items[index];
-      if (x !== null || y !== null) {
+      const { x, y, detach } = this.items[index];
+      if ((x !== null || y !== null) && detach) {
         Object.assign(board.style, {
           transform: `translate(${x || 0}px, ${y || 0}px)`,
         });
@@ -140,11 +141,33 @@ export default {
         detach: this.items[index].detach,
       };
     },
+    movePlace(index, place) {
+      const item = this.items[index];
+      const len = this.items.length;
+      const next = Number(index) + Number(place);
+      if (next > len || next < 0) {
+        return;
+      }
+      const tmpItem = this.items[next];
+      this.$set(this.items, next, item);
+      this.$set(this.items, index, tmpItem);
+    },
     detachStyle(index) {
-      const { detach, width, height, open, size, x, y } = this.items[index];
-      const style = {
+      const {
+        detach,
         width,
         height,
+        open,
+        size,
+        zIndex,
+        full,
+        x,
+        y,
+      } = this.items[index];
+      const style = {
+        width,
+        height: open ? height : '22px',
+        zIndex: full ? this.maxIndex + 1 : zIndex,
         transform: `translate(${x || 0}px, ${y || 0}px)`,
       };
       if (!detach) {
@@ -193,7 +216,7 @@ export default {
       this.$emit('remove', index);
     },
     toggle(index) {
-      if (this.items[index].full || this.items[index].detach) return;
+      if (this.items[index].full) return;
       Vue.set(this.items[index], 'open', !this.items[index].open);
       if (this.items[index].height === '0px') {
         this.items[index].height = null;
@@ -203,24 +226,77 @@ export default {
   render(h) {
     const items = [];
     const t = this;
+    const len = Object.keys(this.items).length - 1;
     for (const index in this.items) {
       if (Object.hasOwnProperty.call(this.items, index)) {
         const item = this.items[index];
+        const clickToggle = event => {
+          event.stopPropagation();
+          t.toggle(index);
+        };
+        const upOrDown =
+          item.full || item.detach
+            ? []
+            : [
+                index === '0'
+                  ? ''
+                  : h(
+                      'span',
+                      {
+                        class: 'accotdion--up',
+                        on: {
+                          click(event) {
+                            event.stopPropagation();
+                            t.movePlace(index, -1);
+                          },
+                        },
+                      },
+                      [createSvg(h, svgs.up)]
+                    ),
+                Number(index) === len
+                  ? ''
+                  : h(
+                      'span',
+                      {
+                        class: 'accotdion--down',
+                        on: {
+                          click(event) {
+                            event.stopPropagation();
+                            t.movePlace(index, 1);
+                          },
+                        },
+                      },
+                      [createSvg(h, svgs.up)]
+                    ),
+              ];
         const children = [
           h(
             'div',
             {
               class: 'accotdion--title',
               on: {
-                click() {
-                  t.toggle(index);
+                click(event) {
+                  if (item.detach) return;
+                  clickToggle(event);
                 },
               },
             },
             [
-              h('span', { class: 'accotdion--toggle' }, [
-                createSvg(h, item.full || item.detach ? svgs.dot : svgs.arrows),
-              ]),
+              h(
+                'span',
+                {
+                  class: 'accotdion--toggle',
+                  on: {
+                    click: clickToggle,
+                  },
+                },
+                [
+                  createSvg(
+                    h,
+                    item.full || item.detach ? svgs.dot : svgs.arrows
+                  ),
+                ]
+              ),
               h('div', item.name),
               h(
                 'span',
@@ -235,6 +311,7 @@ export default {
                 },
                 [createSvg(h, svgs.delete)]
               ),
+              ...upOrDown,
               h(
                 'span',
                 {
@@ -389,12 +466,16 @@ export default {
     }
   }
   &:hover {
+    .accotdion--down,
+    .accotdion--up,
     .accotdion--full,
     .accotdion--detach,
     .accotdion--delete {
       visibility: visible;
     }
   }
+  .accotdion--down,
+  .accotdion--up,
   .accotdion--delete,
   .accotdion--detach,
   .accotdion--full {
@@ -404,6 +485,9 @@ export default {
         fill: #111;
       }
     }
+  }
+  .accotdion--down {
+    transform: rotate(180deg);
   }
   .accotdion--toggle {
     transform: rotate(90deg);

@@ -32,6 +32,10 @@ export default {
   },
   render(h) {
     const t = this;
+    const clickToggle = event => {
+      event.stopPropagation();
+      t.state = !t.state;
+    };
     return h(
       'div',
       {
@@ -69,24 +73,26 @@ export default {
                   {
                     class: '',
                     on: {
-                      click(event) {
-                        event.stopPropagation();
-                        t.state = !t.state;
-                      },
+                      click: clickToggle,
                     },
                   },
                   [createSvg(h, svgs.dot)]
                 ),
-                h('div', {}, this.name),
+                h(
+                  'div',
+                  {
+                    on: {
+                      click: clickToggle,
+                    },
+                  },
+                  this.name
+                ),
                 h(
                   'span',
                   {
                     class: 'bottom--toggle',
                     on: {
-                      click(event) {
-                        event.stopPropagation();
-                        t.state = !t.state;
-                      },
+                      click: clickToggle,
                     },
                   },
                   [createSvg(h, svgs.arrows)]

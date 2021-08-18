@@ -1,7 +1,7 @@
 <template>
   <div
     id="demo"
-    class="w-screen h-screen bg-gray-100  text-gray-500  text-center bg-gray-100"
+    class="w-screen h-screen bg-gray-100 overflow-hidden text-gray-500 text-center bg-gray-100"
   >
     <!-- <div class="container h-full m-auto text-gray-500 text-center bg-gray-100">
       <div class="select-none py-2 text-sm">
@@ -30,13 +30,9 @@
 import Layout from '../Layout';
 import { install } from '../index';
 
-import Other from './Other';
-import Full from './Full';
-import Function from './Function';
-
-install(Other);
-install(Full);
-install(Function);
+install('full', () => import('./Full'));
+install('other', () => import('./Other'));
+install('function', () => import('./Function'));
 
 export default {
   name: 'Demo',

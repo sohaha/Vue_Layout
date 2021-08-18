@@ -16,6 +16,10 @@ export function install(name, component) {
 
         c = name;
     }
-    if (indComponent.includes(n)) return;
+    if (indComponent.includes(n)) {
+        console.warn('There are components with the same');
+
+        return;
+    }
     Vue.component(n, c);
 }
