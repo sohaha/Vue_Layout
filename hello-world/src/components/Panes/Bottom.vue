@@ -3,6 +3,7 @@ import { createSvg, svgs } from './utils';
 
 export default {
   name: 'Bottom',
+  inject: ['layoutRef'],
   props: {
     name: {
       type: String,
@@ -40,6 +41,9 @@ export default {
       'div',
       {
         class: { 'bottom-box': true, rise: this.state },
+        style: {
+          zIndex: this.layoutRef().maxIndex,
+        },
       },
       [
         this.state
