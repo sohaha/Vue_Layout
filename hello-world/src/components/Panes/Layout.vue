@@ -44,7 +44,7 @@ export default {
     full: false,
     history: {},
     bind: {},
-    maxIndex: 0, // todo 后期通过排序优先掉该属性
+    maxIndex: 1000, // todo 后期通过排序优先掉该属性
   }),
   computed: {
     emptyLayout() {
