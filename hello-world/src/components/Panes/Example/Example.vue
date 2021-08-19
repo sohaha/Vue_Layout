@@ -3,26 +3,7 @@
     id="demo"
     class="w-screen h-screen bg-gray-100 overflow-hidden text-gray-500 text-center bg-gray-100"
   >
-    <!-- <div class="container h-full m-auto text-gray-500 text-center bg-gray-100">
-      <div class="select-none py-2 text-sm">
-        <div class="">
-          <span @click="saveLayout">保存布局</span> |
-          <span @click="recoverLayout">恢复布局</span>
-        </div>
-        <div class="">
-          <span @click="add('left')">左边插入</span> |
-          <span @click="add('centre')">中间插入</span> |
-          <span @click="add('right')">右边插入</span>
-        </div>
-        <div class="mb-2">
-          <span @click="toggle('left')">左边切换</span> |
-          <span @click="toggle('centre')">中间切换</span> |
-          <span @click="toggle('right')">右边切换</span> |
-          <span @click="toggle('bottom')">底部切换</span>
-        </div> -->
     <layout ref="layout" :height="height" :width="width" :layout="layout" />
-    <!-- </div> -->
-    <!-- </div> -->
   </div>
 </template>
 

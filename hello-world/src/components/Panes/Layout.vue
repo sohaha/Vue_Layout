@@ -51,15 +51,7 @@ export default {
       return Object.keys(this.history).length === 0;
     },
   },
-  watch: {
-    history() {
-      console.log('history变化');
-    },
-  },
   beforeDestroy() {
-    // this.history.forEach(item => {
-    //   console.log(item);
-    // });
     this.release();
   },
   mounted() {
@@ -118,6 +110,11 @@ export default {
       return history;
     },
     addBlock(name, item, index) {
+      const exist = typeof this.history[name] === 'object';
+      if (!exist) {
+        console.warn('There is no defined groups');
+        return;
+      }
       if (index !== undefined) {
         this.history[name]['items'].splice(index, 0, padItem(item));
       } else {
@@ -200,18 +197,27 @@ export default {
       const minSize = layout.minSize || 0;
       const maxSize = layout.maxSize || 100;
       const child = [];
+      const cacheKeys = [];
       switch (name) {
         default: {
           if (items && items.length > 0) {
             for (const index in items) {
               if (Object.hasOwnProperty.call(items, index)) {
                 const v = items[index];
+                let key = `${v.component}|${v.key ||
+                  v.name ||
+                  Number(new Date())}`;
                 if (!v._key) {
-                  const key = v.key || v.name || Number(new Date());
-                  this.history[name]['items'][
-                    index
-                  ]._key = `${v.component}|${key}`;
+                  // eslint-disable-next-line max-depth
+                  if (cacheKeys.includes(key)) {
+                    key = key + Number(new Date());
+                  }
+                  this.history[name]['items'][index]._key = key;
+                } else if (cacheKeys.includes(v._key)) {
+                  this.history[name]['items'][index]._key =
+                    v._key + Number(new Date());
                 }
+                cacheKeys.push(v._key);
               }
             }
 
