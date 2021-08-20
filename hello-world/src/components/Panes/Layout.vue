@@ -4,7 +4,7 @@ import Panes from './Panes';
 import Accordion from './Accordion';
 import Shrink from './Shrink';
 import Bottom from './Bottom';
-import { padItem } from './utils';
+import { padItem, toSize } from './utils';
 import '@interactjs/auto-start';
 import '@interactjs/actions/drag';
 import '@interactjs/actions/drop';
@@ -44,6 +44,8 @@ export default {
     full: false,
     history: {},
     bind: {},
+    widthPX: 0,
+    heightPX: 0,
     maxIndex: 1000, // todo 后期通过排序优先掉该属性
   }),
   computed: {
@@ -56,6 +58,13 @@ export default {
   },
   mounted() {
     this.loadLayout(this.layout);
+
+    setTimeout(() => {
+      console.log(
+        toSize(this.$refs.contentPanes, 200),
+        this.$refs.contentPanes.$el.clientWidth
+      );
+    }, 1222);
   },
   methods: {
     layoutRef() {
@@ -74,7 +83,6 @@ export default {
     release() {
       for (const name in this.bind) {
         if (Object.hasOwnProperty.call(this.bind, name)) {
-          console.log(name, this.bind[name]);
           if (!this.bind[name]) {
             continue;
           }
@@ -168,6 +176,9 @@ export default {
       setTimeout(() => {
         this.$refs.contentPanes.initSize();
       });
+    },
+    toggleBottom() {
+      this.$set(this.history['bottom'], 'size', '10');
     },
     removeBlock(name, index) {
       const layout = this.history[name];

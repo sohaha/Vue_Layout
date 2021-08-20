@@ -1,0 +1,65 @@
+<template>
+  <layout
+    ref="gridlayout"
+    :layout="layout"
+    :style="layoutStyle"
+    :col-num="12"
+    :row-height="30"
+    :is-draggable="true"
+    :is-resizable="true"
+    :responsive="true"
+    :vertical-compact="true"
+    :use-css-transforms="true"
+    vvv-bind="$attrs"
+  >
+    <item v-for="item in layout" :key="item.i" v-bind="item">{{ item.i }}</item>
+  </layout>
+</template>
+
+<script>
+// import Layout from './Layout';
+// import Item from './Item';
+import VueGridLayout from 'vue-grid-layout';
+export default {
+  name: 'Panel',
+  components: {
+    // Layout,
+    // Item,
+    Layout: VueGridLayout.GridLayout,
+    Item: VueGridLayout.GridItem,
+  },
+  props: {
+    layout: {
+      type: Array,
+      required: true,
+    },
+    lock: {
+      type: Boolean,
+    },
+  },
+  computed: {
+    layoutStyle() {
+      return ``;
+    },
+  },
+  watch: {
+    lock: {
+      handler(val) {
+        this.$attrs['isDraggable'] = !val;
+        this.$attrs['isResizable'] = !val;
+      },
+      immediate: true,
+    },
+  },
+  methods: {},
+};
+</script>
+
+<style scoped>
+.panel-item,
+.vue-grid-item {
+  overflow: auto;
+  box-shadow: 0 0 1px;
+  background: #fff;
+}
+</style>
