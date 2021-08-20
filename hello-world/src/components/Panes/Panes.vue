@@ -504,7 +504,7 @@ export default {
           this.readjustSizes(leftToAllocate, ungrowable, unshrinkable);
       }
     },
-    equalizeAfterAddOrRemove({ addedPane, removedPane } = {}) {
+    equalizeAfterAddOrRemove({ addedPane } = {}) {
       let equalSpace = 100 / this.panesCount;
       let leftToAllocate = 0;
       const ungrowable = [];
@@ -552,7 +552,7 @@ export default {
         equalSpaceToAllocate =
           leftToAllocate / (this.panesCount - unshrinkable.length);
 
-      this.panes.forEach((pane, i) => {
+      this.panes.forEach(pane => {
         if (leftToAllocate > 0 && !ungrowable.includes(pane.id)) {
           const newPaneSize = Math.max(
             Math.min(pane.size + equalSpaceToAllocate, pane.max),

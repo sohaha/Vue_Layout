@@ -17,20 +17,27 @@ export function toSize(comp, size) {
     );
 }
 
-
 export function padItem(item) {
-    return { size: null, y: 0, x: 0, zIndex: 100, height: null, width: null, ...item };
+    return {
+        size: null,
+        y: 0,
+        x: 0,
+        zIndex: 100,
+        height: null,
+        width: null,
+        ...item,
+    };
 }
 
-export function getSize(comp, size) { }
+export function getSize(_, size) {
+    return size;
+}
 
 export const svgs = {
     up: [
         'M860.553846 748.307692H163.446154c-19.692308 0-33.476923-25.6-17.723077-43.323077l340.676923-417.476923c11.815385-15.753846 37.415385-15.753846 49.230769 0l344.615385 417.476923c13.784615 17.723077 1.969231 43.323077-19.692308 43.323077z',
     ],
-    dot: [
-        'M512 512m-160 0a160 160 0 1 0 320 0 160 160 0 1 0-320 0Z',
-    ],
+    dot: ['M512 512m-160 0a160 160 0 1 0 320 0 160 160 0 1 0-320 0Z'],
     arrows: [
         'M96.196 671.807l415.804-415.632 415.803 415.632-63.616 63.445-352.209-352.017-352.102 352.017z',
     ],
@@ -86,4 +93,3 @@ export function sumNextPanesSize(panes, splitterIndex) {
         0
     );
 }
-

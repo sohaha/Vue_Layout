@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable vue/no-mutating-props */
 import interact from '@interactjs/interact';
 import { createSvg, svgs } from './utils';
 
@@ -60,7 +61,7 @@ export default {
           allowFrom: '.accotdion--title',
           enabled: t.items[index].detach,
           listeners: {
-            start(event) {
+            start() {
               x = item.x || 0;
               y = item.y || 0;
               if (item.zIndex <= t.layoutRef().maxIndex) {
@@ -72,7 +73,7 @@ export default {
               y = (parseFloat(y) || 0) + event.dy;
               event.target.style.transform = `translate(${x}px, ${y}px)`;
             },
-            end(event) {
+            end() {
               item.x = x;
               item.y = y;
               t.layoutRef().maxIndex = item.zIndex;
@@ -84,7 +85,7 @@ export default {
           ...this.resizableOptions(index),
           allowFrom: '.accotdion--board',
           listeners: {
-            start(event) {
+            start() {
               x = item.x || 0;
               y = item.y || 0;
             },
@@ -145,6 +146,7 @@ export default {
       let tmpItem;
       let next;
       let i = 0;
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         next = idx + offset + i;
         if (next > len || next < 0) {
@@ -410,7 +412,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import './utils.less';
+@import "./utils.less";
 @titleHeight: 22px;
 
 .accotdion {
@@ -431,11 +433,11 @@ export default {
   height: calc(100% - @titleHeight);
   & > div {
     position: relative;
-    &[style*='ns-resize']:after {
+    &[style*="ns-resize"]:after {
       opacity: 1;
     }
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       left: 0;
       bottom: 0;
@@ -452,7 +454,7 @@ export default {
 .board {
   background: #fff;
   height: @titleHeight;
-  &[style*='move'] {
+  &[style*="move"] {
     opacity: 0.9;
   }
   &.open {

@@ -10,7 +10,7 @@ export default {
       default: '',
     },
     riseHeight: {
-      type: Number | String,
+      type: Number || String,
       default: '80',
     },
     rise: {
@@ -113,7 +113,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import './utils.less';
+@import "./utils.less";
 
 .bottom-box {
   height: 100%;
