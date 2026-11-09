@@ -14,7 +14,7 @@
     "@interactjs/dev-tools": "^1.10.11",
     "@interactjs/interact": "^1.10.11",
     "@interactjs/modifiers": "^1.10.11",
-    "@vue/cli-plugin-eslint": "^5.0.0-beta.2",
+    "@vue/cli-plugin-eslint": "^5.0.9",
     "babel-eslint": "^10.1.0",
     "core-js": "^3.6.5",
     "element-resize-detector": "^1.2.3",
@@ -28,8 +28,8 @@
     "vue-router": "^3.5.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
+    "@vue/cli-plugin-babel": "~5.0.9",
+    "@vue/cli-service": "~5.0.9",
     "less-loader": "^6.2.0",
     "vue-template-compiler": "^2.6.11"
   },
